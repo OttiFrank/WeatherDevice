@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using Windows.Devices.Gpio;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -22,10 +23,49 @@ namespace WeatherDevice
     /// </summary>
     public sealed partial class MainPage : Page
     {
+        const int CL_PIN = 3;
+        const int DA_PIN = 5;
+
+        GpioPin cl_pin, da_pin;
+        GpioPinValue pinValue;
+        DispatcherTimer timer; 
+
+
         public MainPage()
         {
             this.InitializeComponent();
 
+            InitGPIO();
+
+            
+
+        }
+
+        private void InitGPIO()
+        {
+            var gpio = GpioController.GetDefault();
+
+            if(gpio == null)
+            {
+                cl_pin = null;
+                da_pin = null;
+                System.Diagnostics.Debug.WriteLine("There is no GPIO controller on this device.");
+                return;
+            }
+
+            cl_pin = gpio.OpenPin(CL_PIN);
+            da_pin = gpio.OpenPin(DA_PIN);
+
+            pinValue = GpioPinValue.High;
+
+            //cl_pin.Write(pinValue);
+            //da_pin.Write(pinValue);
+
+            cl_pin.SetDriveMode(GpioPinDriveMode.Input);
+            da_pin.SetDriveMode(GpioPinDriveMode.Input);
+
+            System.Diagnostics.Debug.WriteLine("CL PIN: " + cl_pin.Read());
+            System.Diagnostics.Debug.WriteLine("DA PIN: " + da_pin.Read());
         }
     }
 }
