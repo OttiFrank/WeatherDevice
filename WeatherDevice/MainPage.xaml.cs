@@ -4,6 +4,7 @@ using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
 using Windows.Devices.Gpio;
+using Windows.Devices.I2c; 
 using Windows.Foundation;
 using Windows.Foundation.Collections;
 using Windows.UI.Xaml;
@@ -25,47 +26,64 @@ namespace WeatherDevice
     {
         const int CL_PIN = 3;
         const int DA_PIN = 5;
+        const int PW_PIN = 1;
+        const int GND_PIN = 6;
 
         GpioPin cl_pin, da_pin;
         GpioPinValue pinValue;
-        DispatcherTimer timer; 
+        DispatcherTimer timer;
+
+        float temp;
+        float humidity;
 
 
         public MainPage()
         {
-            this.InitializeComponent();
+            InitializeComponent();
 
+
+            InitTimer();           
             InitGPIO();
+            if (da_pin != null)
+            {
+                timer.Start();
+            }
 
-            
+        }
 
+        private void InitTimer()
+        {
+            timer = new DispatcherTimer();
+            timer.Interval = TimeSpan.FromMilliseconds(1001);
+            timer.Tick += ReadSensor;
         }
 
         private void InitGPIO()
         {
             var gpio = GpioController.GetDefault();
 
-            if(gpio == null)
+            if (gpio == null)
             {
                 cl_pin = null;
                 da_pin = null;
-                System.Diagnostics.Debug.WriteLine("There is no GPIO controller on this device.");
+                GpioStatus.Text = "There is no GPIO controller on this device.";
                 return;
             }
-
-            cl_pin = gpio.OpenPin(CL_PIN);
-            da_pin = gpio.OpenPin(DA_PIN);
-
             pinValue = GpioPinValue.High;
 
-            //cl_pin.Write(pinValue);
-            //da_pin.Write(pinValue);
+            cl_pin = gpio.OpenPin(CL_PIN);
+            cl_pin.Write(pinValue);
+            cl_pin.SetDriveMode(GpioPinDriveMode.Output);
+            GpioStatus.Text = "CL PIN: " + cl_pin.Read();
 
-            cl_pin.SetDriveMode(GpioPinDriveMode.Input);
+            da_pin = gpio.OpenPin(DA_PIN);
             da_pin.SetDriveMode(GpioPinDriveMode.Input);
-
-            System.Diagnostics.Debug.WriteLine("CL PIN: " + cl_pin.Read());
-            System.Diagnostics.Debug.WriteLine("DA PIN: " + da_pin.Read());
+            //GpioStatus.Text = "DA PIN: " + da_pin.Read().ToString();
         }
+        void ReadSensor(object sender, object e)
+        {
+            SensorOuputValue.Text = da_pin.Read().ToString();
+        }
+
     }
 }
