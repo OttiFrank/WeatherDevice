@@ -112,9 +112,8 @@ namespace WeatherDevice
             // Calculate and report the temperature
             var rawTempReading = temperatureData[0] << 8 | temperatureData[1];
             var tempRatio = rawTempReading / (float) 65536;
-            double temperature = (-46.85 + (175.72 * tempRatio)) * 9 / 5 + 32;
-            double tempCelsius = (temperature - 32) * 5 / 9; 
-            CurrentTemp.Text = tempCelsius.ToString();
+            double temperature = (-46.85 + (175.72 * tempRatio));
+            CurrentTemp.Text = temperature.ToString();
         }
     }
 }
