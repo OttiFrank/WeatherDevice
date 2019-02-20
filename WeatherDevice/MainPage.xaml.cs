@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Threading.Tasks;
+using Windows.Devices.Enumeration;
 using Windows.Devices.Gpio;
 using Windows.Devices.I2c; 
 using Windows.Foundation;
@@ -24,66 +26,95 @@ namespace WeatherDevice
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        const int CL_PIN = 3;
-        const int DA_PIN = 5;
-        const int PW_PIN = 1;
-        const int GND_PIN = 6;
-
-        GpioPin cl_pin, da_pin;
-        GpioPinValue pinValue;
+        I2cDevice si7021Sensor;
         DispatcherTimer timer;
-
-        float temp;
-        float humidity;
-
 
         public MainPage()
         {
-            InitializeComponent();
+            this.InitializeComponent();
 
+            //InitGPIO();
+        }
 
-            InitTimer();           
-            InitGPIO();
-            if (da_pin != null)
+        protected override void OnNavigatedFrom(NavigationEventArgs e)
+        {
+            StopScenario();
+        }
+        async Task StartScenarioAsync()
+        {
+            string i2cDeviceSelector = I2cDevice.GetDeviceSelector();
+            IReadOnlyList<DeviceInformation> devices = await DeviceInformation.FindAllAsync(i2cDeviceSelector);
+
+            var SI7021_settings = new I2cConnectionSettings(0x40);
+            si7021Sensor = await I2cDevice.FromIdAsync(devices[0].Id, SI7021_settings);
+
+            timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(500) };
+            timer.Tick += Timer_Tick;
+            timer.Start();
+        }
+
+        private void StopScenario()
+        {
+            if(timer != null)
             {
-                timer.Start();
+                timer.Tick -= Timer_Tick;
+                timer.Stop();
+                timer = null; 
+
             }
 
-        }
-
-        private void InitTimer()
-        {
-            timer = new DispatcherTimer();
-            timer.Interval = TimeSpan.FromMilliseconds(1001);
-            timer.Tick += ReadSensor;
-        }
-
-        private void InitGPIO()
-        {
-            var gpio = GpioController.GetDefault();
-
-            if (gpio == null)
+            if(si7021Sensor != null)
             {
-                cl_pin = null;
-                da_pin = null;
-                GpioStatus.Text = "There is no GPIO controller on this device.";
-                return;
+                si7021Sensor.Dispose();
+                si7021Sensor = null; 
             }
-            pinValue = GpioPinValue.High;
-
-            cl_pin = gpio.OpenPin(CL_PIN);
-            cl_pin.Write(pinValue);
-            cl_pin.SetDriveMode(GpioPinDriveMode.Output);
-            GpioStatus.Text = "CL PIN: " + cl_pin.Read();
-
-            da_pin = gpio.OpenPin(DA_PIN);
-            da_pin.SetDriveMode(GpioPinDriveMode.Input);
-            //GpioStatus.Text = "DA PIN: " + da_pin.Read().ToString();
         }
-        void ReadSensor(object sender, object e)
+
+        async void StartStopScenario()
         {
-            SensorOuputValue.Text = da_pin.Read().ToString();
+            if(timer != null)
+            {
+                StopScenario();
+                StartStopButton.Content = "Start";
+                ScenarioControls.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+            } else
+            {
+                StartStopButton.IsEnabled = false;
+                await StartScenarioAsync();
+                StartStopButton.IsEnabled = true;
+                StartStopButton.Content = "Stop";
+                ScenarioControls.Visibility = Windows.UI.Xaml.Visibility.Visible;
+            }
         }
 
+
+        void Timer_Tick(object sender, object e)
+        {
+            var command = new byte[1];
+            var humidityData = new byte[2];
+            var temperatureData = new byte[2];
+
+            // Read humidity
+            command[0] = 0xE5;
+
+            si7021Sensor.WriteRead(command, humidityData);
+
+            // Read temperature
+            command[0] = 0xE3;
+            si7021Sensor.WriteRead(command, temperatureData);
+
+            // Calculate and report the humidity
+            var rawHumidityReading = humidityData[0] << 8 | humidityData[1];
+            var humidityRatio = rawHumidityReading / (float) 65536;
+            double humidity = -6 + (125 * humidityRatio);
+            CurrentHumidity.Text = humidity.ToString();
+
+            // Calculate and report the temperature
+            var rawTempReading = temperatureData[0] << 8 | temperatureData[1];
+            var tempRatio = rawTempReading / (float) 65536;
+            double temperature = (-46.85 + (175.72 * tempRatio)) * 9 / 5 + 32;
+            double tempCelsius = (temperature - 32) * 5 / 9; 
+            CurrentTemp.Text = tempCelsius.ToString();
+        }
     }
 }
