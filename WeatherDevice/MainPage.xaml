@@ -16,6 +16,7 @@
                 <LineBreak/>
                 Current Humidity: <Run x:Name="CurrentHumidity"/>
             </TextBlock>
+
         </StackPanel>
     </Grid>
 </Page>
