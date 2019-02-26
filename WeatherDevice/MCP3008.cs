@@ -29,10 +29,10 @@ namespace WeatherDevice
         byte[] _CH7 = new byte[] { 1, 0xF0, 0 };
         byte[] _DATARECEIVED = new byte[] { 0, 0, 0 }; 
 
-        public async void InitializeMCP3008(SerialComunication serialcomunication, Channel channel, SpiComunication spiComunication, SpiMode mode)
+        public async void InitializeMCP3008(SerialCommunication serialcomunication, Channel channel, SpiCommunication spiComunication, SpiMode mode)
         {
             var spiConnectionSettings = new SpiConnectionSettings((int) spiComunication);
-            spiConnectionSettings.ClockFrequency = _P1733.CLOCK_SIGNAL;
+            //spiConnectionSettings.ClockFrequency = _P1733.CLOCK_SIGNAL;
             spiConnectionSettings.Mode = mode;
 
             string spiDevice = SpiDevice.GetDeviceSelector(spiComunication.ToString());
@@ -78,12 +78,23 @@ namespace WeatherDevice
                     _device.TransferFullDuplex(_CH7, _DATARECEIVED);
                     break;
             }
-            var result = ((_DATARECEIVED[1] & 0X03) << _SHIFTBYTE) + _DATARECEIVED[2];
+            byte[] writeBuffer = new byte[3] { 0x00, 0x00, 0x00 };
+            byte[] readBuffer = new Byte[3];
+
+
+
+
+            //var result = ((_DATARECEIVED[2] & 0x03) << _SHIFTBYTE);
+            var result = _DATARECEIVED[2];
             var mVolt = result * (_P1733.VOLTAGE / _MAXVALUE);
             var windSpeed = mVolt / _RESOLUTIONBITS;
-            return windSpeed; 
+            var DV = result;
+            var RV = 5;
+            //((mVolt - 0.4) / 1.6 * 32.4) / 1000; 
+            float nr = (DV * RV) / 1024f; 
+            return (float) nr; 
         }
-        public enum SerialComunication
+        public enum SerialCommunication
         {
             SINGLE_ENDED,
             DIFFERENTIAL
@@ -94,7 +105,7 @@ namespace WeatherDevice
             CH0, CH1, CH2, CH3, CH4, CH5, CH6, CH7
         }
 
-        public enum SpiComunication
+        public enum SpiCommunication
         {
             SPI0,
             SPI1

@@ -8,7 +8,8 @@ namespace WeatherDevice
 {
     class P1733
     {
-        const int _CLOCKSIGNAL = 1650000;
+        //Original value was 16500000
+        const int _CLOCKSIGNAL = 10000000;
         const double _VOLTAGE = 2000; 
 
         public int CLOCK_SIGNAL

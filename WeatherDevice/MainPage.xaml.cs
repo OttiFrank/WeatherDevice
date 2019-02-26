@@ -43,8 +43,8 @@ namespace WeatherDevice
         async Task StartScenarioAsync()
         {
             string i2cDeviceSelector = I2cDevice.GetDeviceSelector();
-            _mcp3008.InitializeMCP3008(SerialComunication.SINGLE_ENDED, Channel.CH0, SpiComunication.SPI0, SpiMode.Mode0);
             IReadOnlyList<DeviceInformation> devices = await DeviceInformation.FindAllAsync(i2cDeviceSelector);
+            _mcp3008.InitializeMCP3008(SerialCommunication.SINGLE_ENDED, Channel.CH0, SpiCommunication.SPI0, SpiMode.Mode0);
 
             var SI7021_settings = new I2cConnectionSettings(0x40);
             si7021Sensor = await I2cDevice.FromIdAsync(devices[0].Id, SI7021_settings);
@@ -93,8 +93,8 @@ namespace WeatherDevice
 
         void Timer_Tick(object sender, object e)
         {
-            GetTempAndHumidity();
-            //System.Diagnostics.Debug.WriteLine(_mcp3008.ReturnResult().ToString());
+            //GetTempAndHumidity();
+            System.Diagnostics.Debug.WriteLine(_mcp3008.ReturnResult().ToString());
         }
 
 
