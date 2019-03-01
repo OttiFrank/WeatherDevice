@@ -17,7 +17,7 @@ namespace WeatherDevice
         const double _MAXVALUE = 1023.0;
         const int _MINVALUE = 0;
         const int _RESOLUTIONBITS = 10;
-        const int _SHIFTBYTE = 0;
+        const int _SHIFTBYTE = 8;
 
         byte[] _CH0 = new byte[] { 1, 0x80, 0 };
         byte[] _CH1 = new byte[] { 1, 0x90, 0 };
@@ -84,15 +84,17 @@ namespace WeatherDevice
 
 
 
-            //var result = ((_DATARECEIVED[2] & 0x03) << _SHIFTBYTE);
-            var result = _DATARECEIVED[2];
-            var mVolt = result * (_P1733.VOLTAGE / _MAXVALUE);
-            var windSpeed = mVolt / _RESOLUTIONBITS;
+            var result = ((_DATARECEIVED[1] & 0x03) << _SHIFTBYTE) + _DATARECEIVED[2];
+            //var result = _DATARECEIVED[2];
+            //var mVolt = result * (_P1733.VOLTAGE / _MAXVALUE);
+            //var windSpeed = mVolt / _RESOLUTIONBITS;
             var DV = result;
-            var RV = 5;
-            //((mVolt - 0.4) / 1.6 * 32.4) / 1000; 
-            float nr = (DV * RV) / 1024f; 
-            return (float) nr; 
+            float RV = 3.3f;
+            //double newRes = ((mVolt - 4) / 16 * 32.4); 
+            float nr = (DV * RV) / 1023f;
+            System.Diagnostics.Debug.WriteLine("VOLT: " + nr);
+            System.Diagnostics.Debug.WriteLine("Result: " + DV);
+            return (nr - 0.39) / 1.61 * 32.4; 
         }
         public enum SerialCommunication
         {
