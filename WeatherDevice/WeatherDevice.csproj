@@ -125,6 +125,7 @@
     <Compile Include="MCP3008.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="P1733.cs" />
+    <Compile Include="si7021.cs" />
   </ItemGroup>
   <ItemGroup>
     <AppxManifest Include="Package.appxmanifest">

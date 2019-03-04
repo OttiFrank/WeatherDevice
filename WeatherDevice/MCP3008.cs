@@ -81,20 +81,12 @@ namespace WeatherDevice
             byte[] writeBuffer = new byte[3] { 0x00, 0x00, 0x00 };
             byte[] readBuffer = new Byte[3];
 
-
-
-
             var result = ((_DATARECEIVED[1] & 0x03) << _SHIFTBYTE) + _DATARECEIVED[2];
-            //var result = _DATARECEIVED[2];
-            //var mVolt = result * (_P1733.VOLTAGE / _MAXVALUE);
-            //var windSpeed = mVolt / _RESOLUTIONBITS;
             var DV = result;
             float RV = 3.3f;
-            //double newRes = ((mVolt - 4) / 16 * 32.4); 
-            float nr = (DV * RV) / 1023f;
-            System.Diagnostics.Debug.WriteLine("VOLT: " + nr);
-            System.Diagnostics.Debug.WriteLine("Result: " + DV);
-            return (nr - 0.39) / 1.61 * 32.4; 
+            float volt = (DV * RV) / 1023f;
+            double windSpeed = (volt - 0.39) / 1.61 * 32.4;
+            return windSpeed; 
         }
         public enum SerialCommunication
         {

@@ -10,13 +10,15 @@
 
     <Grid Background="{ThemeResource ApplicationPageBackgroundThemeBrush}">
         <StackPanel HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Button x:Name="StartStopButton" Content="Start" Margin="0,10,0,0" Click="{x:Bind StartStopScenario}"/>
-            <TextBlock x:Name="ScenarioControls" Visibility="Collapsed">
+            <TextBlock x:Name="ScenarioControls" Visibility="Visible">
                 Current Temperature: <Run x:Name="CurrentTemp"/>
                 <LineBreak/>
                 Current Humidity: <Run x:Name="CurrentHumidity"/>
+                <LineBreak/>
+                Current Wind Speed: <Run x:Name="CurrentWindSpeed"/>
+                <LineBreak/>
+                Last measured wind speed mean: <Run x:Name="CurrentMeanWind"/>
             </TextBlock>
-
         </StackPanel>
     </Grid>
 </Page>
