@@ -93,7 +93,7 @@ namespace WeatherDevice
 
         void Timer_Tick(object sender, object e)
         {
-            //GetTempAndHumidity();
+            GetTempAndHumidity();
             System.Diagnostics.Debug.WriteLine(_mcp3008.ReturnResult().ToString());
         }
 
