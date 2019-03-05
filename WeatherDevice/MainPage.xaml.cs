@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Data.SqlClient;
 using System.IO;
 using System.Linq;
 using System.Runtime.InteropServices.WindowsRuntime;
+using System.Text;
 using System.Threading.Tasks;
 using Windows.Devices.Enumeration;
 using Windows.Devices.Gpio;
@@ -16,6 +18,7 @@ using Windows.UI.Xaml.Navigation;
 using static WeatherDevice.MCP3008;
 using static WeatherDevice.Si7021; 
 
+
 // The Blank Page item template is documented at https://go.microsoft.com/fwlink/?LinkId=402352&clcid=0x409
 
 namespace WeatherDevice
@@ -28,6 +31,7 @@ namespace WeatherDevice
         DispatcherTimer timer;
         Si7021 si7021 = new Si7021();
         MCP3008 _mcp3008 = new MCP3008();
+        DBConnection db = new DBConnection();
 
         List<double> windSpeedArray = new List<double>();
 
@@ -38,7 +42,8 @@ namespace WeatherDevice
         public MainPage()
         {
             this.InitializeComponent();
-            StartScenarioAsync(); 
+            //StartScenarioAsync();
+            db.AddWind();
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
