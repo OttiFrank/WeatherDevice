@@ -42,8 +42,8 @@ namespace WeatherDevice
         public MainPage()
         {
             this.InitializeComponent();
-            //StartScenarioAsync();
-            db.AddWind();
+            StartScenarioAsync();
+            
         }
 
         protected override void OnNavigatedFrom(NavigationEventArgs e)
@@ -103,7 +103,6 @@ namespace WeatherDevice
             if (windSpeedArray.Count < 30)
             {
                 windSpeedArray.Add(windSpeed);
-                System.Diagnostics.Debug.WriteLine(count + ". " + windSpeedArray[count]);
                 count++;
                 
 
@@ -113,7 +112,6 @@ namespace WeatherDevice
                 CalculateWindSpeedMean();
                 windSpeedArray.Clear();
                 count = 0;
-                System.Diagnostics.Debug.WriteLine(windSpeedArray.Count);
             }
             
                 
@@ -127,7 +125,8 @@ namespace WeatherDevice
                 mean += item;
             }
             meanWind = Math.Round((mean / windSpeedArray.Count), 2);
-            System.Diagnostics.Debug.WriteLine("Medelhastighet: " + meanWind + "m/s");   
+            System.Diagnostics.Debug.WriteLine("Medelhastighet: " + meanWind + "m/s");
+            db.AddWind(meanWind);
         }
     }
 }

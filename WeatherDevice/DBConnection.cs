@@ -9,7 +9,7 @@ namespace WeatherDevice
 {
     class DBConnection
     {
-        public void AddWind()
+        public void AddWind(double wind)
         {
             try
             {
@@ -25,7 +25,7 @@ namespace WeatherDevice
                 {
                     connection.Open();
                     StringBuilder sb = new StringBuilder();
-                    sb.Append("INSERT INTO case_WindSpeed(wind) VALUES ('16.543');");
+                    sb.Append("INSERT INTO case_WindSpeed(wind) VALUES ('"+ wind +"');");
                     sb.Append("SELECT * FROM case_WindSpeed;");
                     String sql = sb.ToString();
 
