@@ -2,7 +2,12 @@
 // for details on configuring this project to bundle and minify static web assets.
 
 // Write your JavaScript code.
-
+var myChart;
+var temperatures = [];
+var humidities = [];
+var timestampArray = [];
+var dateArray = [];
+var timeArray = [];
 loadWindData();
 loadTempHumid();
 
@@ -21,14 +26,39 @@ function loadWindData()
         }
     });
 }
-function loadTempHumid() {
+function loadTempHumid() 
+{
     $.ajax({
         url: '/Home/TempHumidList',
         type: "GET",
         contentType: "application/json;charset=utf-8",
         dataType: "json",
         success: function(result){
-            console.log(result);
+            for(var i = 0; i < result.length; i++) {
+                
+                let timestamp = result[i].date; 
+                var date = timestamp.split("T"); 
+                dateArray.push(date[0]);
+                timeArray.push(date[1]);
+                timestampArray.push(date[0] + " " + date[1]); 
+
+                var temp = {
+                    temperature:result[i].temperature,
+                    date: timestampArray[i]
+                }
+                var humid = {
+                    humidity: result[i].humidity,
+                    date: result[i].date
+                }
+                temperatures.push(temp); 
+                humidities.push(humid);
+
+                AddData(myChart, temperatures[i].date, temperatures[i].temperature);
+            }
+            console.log(temperatures[2]);
+            console.log(dateArray);
+            console.log(timeArray);
+            console.log(timestampArray);
         },
         error: function(error) {
             console.log(JSON.stringify(error));
@@ -37,21 +67,14 @@ function loadTempHumid() {
 }
 
 var ctx = document.getElementById("myChart").getContext('2d');
-    var myChart = new Chart(ctx, {
+myChart = new Chart(ctx, {
       type: 'line',
       data: {
-        labels: ["Red", "Blue", "Yellow", "Green", "Purple", "Orange"],
+        labels: [],
         datasets: [{
-          label: '# of Votes',
-          data: [12, 19, 3, 5, 2, 3],
-          backgroundColor: [
-            'rgba(255, 99, 132, 0.2)',
-            'rgba(54, 162, 235, 0.2)',
-            'rgba(255, 206, 86, 0.2)',
-            'rgba(75, 192, 192, 0.2)',
-            'rgba(153, 102, 255, 0.2)',
-            'rgba(255, 159, 64, 0.2)'
-          ],
+          label: 'Temperature in celsius',
+          data: [],
+          fill: false,
           borderColor: [
             'rgba(255,99,132,1)',
             'rgba(54, 162, 235, 1)',
@@ -60,11 +83,24 @@ var ctx = document.getElementById("myChart").getContext('2d');
             'rgba(153, 102, 255, 1)',
             'rgba(255, 159, 64, 1)'
           ],
-          borderWidth: 1
+          borderWidth: 2
         }]
       },
       options: {
         scales: {
+          xAxes: [{
+            type: 'time',
+            time: {
+                dispayFormat: {
+                    'day': 'ddd', 
+                },
+              },
+            ticks: {
+                source: 'data',
+                maxTicksLimit: 20,
+            },
+            distribution: 'auto'
+          }], 
           yAxes: [{
             ticks: {
               beginAtZero:true
@@ -73,6 +109,14 @@ var ctx = document.getElementById("myChart").getContext('2d');
         }
       }
     });
-
+    
+function AddData(chart, label, data) 
+{
+    chart.data.labels.push(label);
+    chart.data.datasets.forEach((dataset) => {
+        dataset.data.push(data)
+    });
+    chart.update();
+}
 
 
