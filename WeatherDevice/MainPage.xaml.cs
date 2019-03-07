@@ -58,7 +58,7 @@ namespace WeatherDevice
             _mcp3008.InitializeMCP3008(SerialCommunication.SINGLE_ENDED, Channel.CH0, SpiCommunication.SPI0, SpiMode.Mode0);
             si7021.InitializeSi7021();
 
-            si7021Timer = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(15) }; 
+            si7021Timer = new DispatcherTimer() { Interval = TimeSpan.FromMinutes(10) }; 
             P1733Timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(500) };
             P1733Timer.Tick += P1733Timer_Tick;
             si7021Timer.Tick += si7021Timer_Tick;
