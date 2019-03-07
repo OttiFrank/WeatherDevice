@@ -74,7 +74,8 @@ myChart = new Chart(ctx, {
         datasets: [{
           label: 'Temperature in celsius',
           data: [],
-          fill: false,
+          fill: true,
+          pointRadius: 0,
           borderColor: [
             'rgba(255,99,132,1)',
             'rgba(54, 162, 235, 1)',
@@ -89,16 +90,9 @@ myChart = new Chart(ctx, {
       options: {
         scales: {
           xAxes: [{
-            type: 'time',
-            time: {
-                    unit: 'hour',
-                dispayFormat: {
-                    'hour': 'h', 
-                },
-              },
             ticks: {
-                source: 'data',
-                maxTicksLimit: 20,
+                autoSkip: true,
+                maxTicksLimit: 20
             },
             distribution: 'auto'
           }], 
