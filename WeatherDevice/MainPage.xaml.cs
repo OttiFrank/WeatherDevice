@@ -28,7 +28,7 @@ namespace WeatherDevice
     /// </summary>
     public sealed partial class MainPage : Page
     {
-        DispatcherTimer timer;
+        DispatcherTimer P1733Timer, si7021Timer;
         Si7021 si7021 = new Si7021();
         MCP3008 _mcp3008 = new MCP3008();
         DBConnection db = new DBConnection();
@@ -36,7 +36,7 @@ namespace WeatherDevice
         List<double> windSpeedArray = new List<double>();
 
         double meanWind = 0;
-
+        double temperature, humidity; 
         int count = 0;
 
         public MainPage()
@@ -56,21 +56,24 @@ namespace WeatherDevice
         {
             
             _mcp3008.InitializeMCP3008(SerialCommunication.SINGLE_ENDED, Channel.CH0, SpiCommunication.SPI0, SpiMode.Mode0);
-            si7021.InitializeSi7021(); 
+            si7021.InitializeSi7021();
 
-            timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(500) };
-            timer.Tick += Timer_Tick;
-            timer.Start();
+            si7021Timer = new DispatcherTimer() { Interval = TimeSpan.FromSeconds(15) }; 
+            P1733Timer = new DispatcherTimer() { Interval = TimeSpan.FromMilliseconds(500) };
+            P1733Timer.Tick += P1733Timer_Tick;
+            si7021Timer.Tick += si7021Timer_Tick;
+            P1733Timer.Start();
+            si7021Timer.Start();
 
         }
 
         private void StopScenario()
         {
-            if (timer != null)
+            if (P1733Timer != null)
             {
-                timer.Tick -= Timer_Tick;
-                timer.Stop();
-                timer = null;
+                P1733Timer.Tick -= P1733Timer_Tick;
+                P1733Timer.Stop();
+                P1733Timer = null;
 
             }
 
@@ -81,7 +84,12 @@ namespace WeatherDevice
             }
         }
 
-        void Timer_Tick(object sender, object e)
+        void si7021Timer_Tick(object sender, object e)
+        {
+            db.AddTempAndHumid(temperature, humidity);  
+        }
+
+        void P1733Timer_Tick(object sender, object e)
         {
             si7021.SetTemperatureAndHumidity();
             setWindSpeedArray();
@@ -90,8 +98,10 @@ namespace WeatherDevice
 
         private void PrintToScreen()
         {
-            CurrentHumidity.Text = si7021.GetHumidityAsString + "%";
-            CurrentTemp.Text = si7021.GetTemperatureAsString + "°C";
+            temperature = si7021.GetTemperature;
+            humidity = si7021.GetHumidity; 
+            CurrentHumidity.Text = humidity.ToString() + "%";
+            CurrentTemp.Text = temperature.ToString() + "°C";
             CurrentWindSpeed.Text = Math.Round(_mcp3008.ReturnResult(), 2).ToString() + "m/s";
             CurrentMeanWind.Text = meanWind.ToString() + "m/s";
         }

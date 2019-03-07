@@ -58,18 +58,18 @@ namespace WeatherDevice
             var tempRatio = rawTempReading / (float)65536;
             temperature = Math.Round((-46.85 + (175.72 * tempRatio)), 2);
         }
-
-        public string GetTemperatureAsString
-        {
-            get {
-                return temperature.ToString();
-            }
-        }
-        public string GetHumidityAsString
+        public double GetTemperature
         {
             get
             {
-                return humidity.ToString();
+                return temperature;
+            }
+        }
+        public double GetHumidity
+        {
+            get
+            {
+                return humidity;
             }
         }
     }
