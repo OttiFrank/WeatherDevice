@@ -91,8 +91,9 @@ myChart = new Chart(ctx, {
           xAxes: [{
             type: 'time',
             time: {
+                    unit: 'hour',
                 dispayFormat: {
-                    'day': 'ddd', 
+                    'hour': 'h', 
                 },
               },
             ticks: {
