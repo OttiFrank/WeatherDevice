@@ -10,6 +10,14 @@ namespace case_weatherapp.Controllers
 {
     public class HomeController : Controller
     {
+        Model model = new Model();
+        // GET: Home
+
+        public JsonResult List()
+        {
+            return Json(model.GetWinds());
+        }
+
         public IActionResult Index()
         {
             return View();
