@@ -13,9 +13,13 @@ namespace case_weatherapp.Controllers
         Model model = new Model();
         // GET: Home
 
-        public JsonResult List()
+        public JsonResult WindList()
         {
             return Json(model.GetWinds());
+        }
+        public JsonResult TempHumidList()
+        {
+            return Json(model.GetTempHumid());
         }
 
         public IActionResult Index()

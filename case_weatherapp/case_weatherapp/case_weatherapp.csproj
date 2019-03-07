@@ -14,4 +14,7 @@
   <ItemGroup>
     <Compile Remove="Controllers\Controller.cs" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Remove="wwwroot\js\EmptyJSFile.js" />
+  </ItemGroup>
 </Project>

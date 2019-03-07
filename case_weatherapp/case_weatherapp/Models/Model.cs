@@ -34,6 +34,7 @@ namespace case_weatherapp.Models
             return null;
         }
 
+        // Get windspeed from database
         public List<Wind> GetWinds()
         {
             List<Wind> windList = new List<Wind>();
@@ -62,7 +63,38 @@ namespace case_weatherapp.Models
                     }
                 }
             }
+        }
 
+        // Get temperature and humidity from database
+        public List<TempHumid> GetTempHumid()
+        {
+            List<TempHumid> tempHumidList = new List<TempHumid>();
+            var builder = this.ConnectToDb();
+            using (SqlConnection connection = new SqlConnection(builder.ConnectionString))
+            {
+                connection.Open();
+                StringBuilder sb = new StringBuilder();
+                sb.Append("SELECT * FROM case_TempHumid;");
+                String sql = sb.ToString();
+
+                using (SqlCommand command = new SqlCommand(sql, connection))
+                {
+                    using (SqlDataReader reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            tempHumidList.Add(new TempHumid
+                            {
+                                Id = Int32.Parse(reader[0].ToString()),
+                                Temperature = Double.Parse(reader[1].ToString()),
+                                Humidity = Double.Parse(reader[2].ToString()),
+                                Date = DateTime.Parse(reader[3].ToString())
+                            });
+                        }
+                        return tempHumidList;
+                    }
+                }
+            }
         }
     }
 }

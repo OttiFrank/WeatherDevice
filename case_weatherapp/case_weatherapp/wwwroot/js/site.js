@@ -3,6 +3,39 @@
 
 // Write your JavaScript code.
 
+loadWindData();
+loadTempHumid();
+
+function loadWindData()
+{
+    $.ajax({
+        url: '/Home/WindList',
+        type: "GET",
+        contentType: "application/json;charset=utf-8",
+        dataType: "json",
+        success: function(result){
+            console.log(result);
+        },
+        error: function(error) {
+            console.log(JSON.stringify(error));
+        }
+    });
+}
+function loadTempHumid() {
+    $.ajax({
+        url: '/Home/TempHumidList',
+        type: "GET",
+        contentType: "application/json;charset=utf-8",
+        dataType: "json",
+        success: function(result){
+            console.log(result);
+        },
+        error: function(error) {
+            console.log(JSON.stringify(error));
+        }
+    });
+}
+
 var ctx = document.getElementById("myChart").getContext('2d');
     var myChart = new Chart(ctx, {
       type: 'line',
@@ -40,4 +73,6 @@ var ctx = document.getElementById("myChart").getContext('2d');
         }
       }
     });
+
+
 
