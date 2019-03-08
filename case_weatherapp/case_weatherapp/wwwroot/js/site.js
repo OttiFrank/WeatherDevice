@@ -344,6 +344,7 @@ windChart = new Chart(ctx3, {
                     beginAtZero:true,
                     callback: function(value, index, values) {
                         return value + 'm/s';
+                    }
                 }
             }]
         }
