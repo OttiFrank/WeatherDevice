@@ -167,7 +167,10 @@ tempChart = new Chart(ctx, {
                     labelString: "Grader i celsius"
                 },
                 ticks: {
-                    beginAtZero: true
+                    beginAtZero:true,
+                    callback: function(value, index, values) {
+                        return value + '°';
+                    }
                 }
             }]
         }
@@ -251,7 +254,10 @@ humidChart = new Chart(ctx2, {
                     labelString: "Grader i celsius"
                 },
                 ticks: {
-                    beginAtZero: true
+                    beginAtZero:true,
+                    callback: function(value, index, values) {
+                        return value + '%';
+                    }
                 }
             }]
         }
@@ -335,7 +341,9 @@ windChart = new Chart(ctx3, {
                     labelString: "Meter i sekund"
                 },
                 ticks: {
-                    beginAtZero: true
+                    beginAtZero:true,
+                    callback: function(value, index, values) {
+                        return value + 'm/s';
                 }
             }]
         }
