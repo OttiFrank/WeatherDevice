@@ -7,13 +7,28 @@ var temperatures = [];
 var humidities = [];
 var winds = [];
 var timestampArray = [];
+var count = 630000;
+var countdown; 
 loadWindData();
 loadTempHumid();
+timer();
+setTimeout(loadTempHumid, count);
+setTimeout(loadWindData, count);
+setTimeout(updateCharts, count + 5000);
 
-setTimeout(loadTempHumid, 600000);
-setTimeout(loadWindData, 600000);
-setTimeout(updateCharts, 605000);
-
+function timer() {
+    countdown = count;
+    if (count <= 0) {
+        clearInterval(counter);
+        return;
+    }
+    count--;
+    displayCount();    
+}
+function displayCount() {
+    var res = count / 100 + " secs";
+    document.getElementById("timer").innerHTML = res.toPrecision(count.toString().length) + " secs"; 
+}
 function updateCharts() {
     tempChart.Update();
     humidChart.Update();
@@ -68,6 +83,7 @@ function setTempHumid(result) {
         humidities.push(humid);
         AddData(tempChart, temperatures[i].date, temperatures[i].temperature);
         AddData(humidChart, humidities[i].date, humidities[i].humidity);
+        console.log();
     }    
 }
 
@@ -248,7 +264,7 @@ humidChart = new Chart(ctx2, {
             yAxes: [{
                 scaleLabel: {
                     display: true,
-                    labelString: "Grader i celsius"
+                    labelString: 'percentage'
                 },
                 ticks: {
                     beginAtZero: true
