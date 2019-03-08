@@ -15,6 +15,8 @@ setTimeout(loadWindData, count);
 setTimeout(updateCharts, count + 5000);
 
 function updateCharts() {
+    tempChart.data = []; 
+    tempChart.labels = [];
     tempChart.Update();
     humidChart.Update();
     windChart.Update();
