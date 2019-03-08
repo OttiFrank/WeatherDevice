@@ -76,18 +76,63 @@ myChart = new Chart(ctx, {
           data: [],
           fill: true,
           pointRadius: 0,
-          borderColor: [
-            'rgba(255,99,132,1)',
-            'rgba(54, 162, 235, 1)',
-            'rgba(255, 206, 86, 1)',
-            'rgba(75, 192, 192, 1)',
-            'rgba(153, 102, 255, 1)',
-            'rgba(255, 159, 64, 1)'
-          ],
-          borderWidth: 2
+          //borderColor: [
+            //'rgba(255,99,132,1)',
+            //'rgba(54, 162, 235, 1)',
+            //'rgba(255, 206, 86, 1)',
+            //'rgba(75, 192, 192, 1)',
+            //'rgba(153, 102, 255, 1)',
+            //'rgba(255, 159, 64, 1)'
+          //],
+          borderWidth: 1
         }]
       },
+        plugins: [{
+            beforeRender: function (x, options) {
+                var c = x.chart
+                var dataset = x.data.datasets[0];
+                var yScale = x.scales['y-axis-0'];
+                var yPos = yScale.getPixelForValue(0);
+
+                var gradientFill = c.ctx.createLinearGradient(0, 0, 0, c.height);
+                gradientFill.addColorStop(0, 'rgba(211, 33, 45, 1)');
+                gradientFill.addColorStop(yPos / c.height - 0.01, 'rgba(211, 33, 45, 0.2)');
+                gradientFill.addColorStop(yPos / c.height + 0.01, 'rgba(0, 70, 180, 0.2');
+                gradientFill.addColorStop(1, 'rgba(0, 70, 180, 1');
+
+                var model = x.data.datasets[0]._meta[Object.keys(dataset._meta)[0]].dataset._model;
+                model.backgroundColor = gradientFill;
+            },
+            beforeDraw: function (c) {
+                var data = c.data.datasets[0].data;
+                for (var i in data) {
+                    try {
+                        var bar = c.data.datasets[0]._meta[0].data[i]._model;
+                        if (data[i] > 0) {
+                            bar.borderColor = '#E82020';
+                        } else
+                            bar.borderColor = '#07C';
+                        }
+                        catch (ex) {
+                            console.log(ex.message);
+                        }
+                            console.log(data[i]);
+                        }
+                    }
+        }],
       options: {
+        legend: {
+            display: false
+        },
+        responsive: true,
+        hover: {
+            mode: 'nearest',
+            intersect: false
+        },
+        tooltips: {
+            mode: 'nearest',
+            intersect: false
+        },
         scales: {
           xAxes: [{
             ticks: {
