@@ -10,6 +10,16 @@ var timestampArray = [];
 loadWindData();
 loadTempHumid();
 
+setTimeout(loadTempHumid, 600000);
+setTimeout(loadWindData, 600000);
+setTimeout(updateCharts, 605000);
+
+function updateCharts() {
+    tempChart.Update();
+    humidChart.Update();
+    windChart.Update();
+    console.log("Updated charts"); 
+}
 function loadWindData() {
     $.ajax({
         url: '/Home/WindList',
@@ -125,8 +135,7 @@ tempChart = new Chart(ctx, {
                     } else
                         bar.borderColor = '#07C';
                 }
-                catch (ex) {
-                    console.log(ex.message);
+                catch (ex) {   
                 }
             }
         }
@@ -153,6 +162,10 @@ tempChart = new Chart(ctx, {
                 distribution: 'auto'
             }],
             yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: "Grader i celsius"
+                },
                 ticks: {
                     beginAtZero: true
                 }
@@ -167,7 +180,7 @@ humidChart = new Chart(ctx2, {
     data: {
         labels: [],
         datasets: [{
-            label: 'Humiditure in percentage',
+            label: 'Humidity in percentage',
             data: [],
             fill: true,
             pointRadius: 0,
@@ -190,14 +203,26 @@ humidChart = new Chart(ctx2, {
             var yPos = yScale.getPixelForValue(0);
 
             var gradientFill = c.ctx.createLinearGradient(0, 0, 0, c.height);
-            gradientFill.addColorStop(0, 'rgba(211, 33, 45, 1)');
-            gradientFill.addColorStop(yPos / c.height - 0.01, 'rgba(211, 33, 45, 0.2)');
-            gradientFill.addColorStop(yPos / c.height + 0.01, 'rgba(0, 70, 180, 0.2');
-            gradientFill.addColorStop(1, 'rgba(0, 70, 180, 1');
+            gradientFill.addColorStop(0, 'rgba(0, 70, 180, 1');            
+            gradientFill.addColorStop(yPos / c.height - 0.01, 'rgba(0, 70, 180, 0.2)');
 
             var model = x.data.datasets[0]._meta[Object.keys(dataset._meta)[0]].dataset._model;
             model.backgroundColor = gradientFill;
         },
+        beforeDraw: function (c) {
+            var data = c.data.datasets[0].data;
+            for (var i in data) {
+                try {
+                    var bar = c.data.datasets[0]._meta[0].data[i]._model;
+                    if (data[i] > 0) {
+                        bar.borderColor = '#E82020';
+                    } else
+                        bar.borderColor = '#07C';
+                }
+                catch (ex) {
+                }
+            }
+        }
     }],
     options: {
         legend: {
@@ -221,6 +246,10 @@ humidChart = new Chart(ctx2, {
                 distribution: 'auto'
             }],
             yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: "Grader i celsius"
+                },
                 ticks: {
                     beginAtZero: true
                 }
@@ -258,14 +287,26 @@ windChart = new Chart(ctx3, {
             var yPos = yScale.getPixelForValue(0);
 
             var gradientFill = c.ctx.createLinearGradient(0, 0, 0, c.height);
-            gradientFill.addColorStop(0, 'rgba(211, 33, 45, 1)');
-            gradientFill.addColorStop(yPos / c.height - 0.01, 'rgba(211, 33, 45, 0.2)');
-            gradientFill.addColorStop(yPos / c.height + 0.01, 'rgba(0, 70, 180, 0.2');
-            gradientFill.addColorStop(1, 'rgba(0, 70, 180, 1');
+            gradientFill.addColorStop(0, 'rgba(0, 70, 180, 1)');
+            gradientFill.addColorStop(yPos / c.height - 0.01, 'rgba(0, 70, 180, 0.2)');
 
             var model = x.data.datasets[0]._meta[Object.keys(dataset._meta)[0]].dataset._model;
             model.backgroundColor = gradientFill;
         },
+        beforeDraw: function (c) {
+            var data = c.data.datasets[0].data;
+            for (var i in data) {
+                try {
+                    var bar = c.data.datasets[0]._meta[0].data[i]._model;
+                    if (data[i] > 0) {
+                        bar.borderColor = '#E82020';
+                    } else
+                        bar.borderColor = '#07C';
+                }
+                catch (ex) {
+                }
+            }
+        }
     }],
     options: {
         legend: {
@@ -289,6 +330,10 @@ windChart = new Chart(ctx3, {
                 distribution: 'auto'
             }],
             yAxes: [{
+                scaleLabel: {
+                    display: true,
+                    labelString: "Meter i sekund"
+                },
                 ticks: {
                     beginAtZero: true
                 }
