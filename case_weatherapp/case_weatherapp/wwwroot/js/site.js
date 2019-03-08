@@ -8,27 +8,12 @@ var humidities = [];
 var winds = [];
 var timestampArray = [];
 var count = 630000;
-var countdown; 
 loadWindData();
 loadTempHumid();
-timer();
 setTimeout(loadTempHumid, count);
 setTimeout(loadWindData, count);
 setTimeout(updateCharts, count + 5000);
 
-function timer() {
-    countdown = count;
-    if (count <= 0) {
-        clearInterval(counter);
-        return;
-    }
-    count--;
-    displayCount();    
-}
-function displayCount() {
-    var res = count / 100 + " secs";
-    document.getElementById("timer").innerHTML = res.toPrecision(count.toString().length) + " secs"; 
-}
 function updateCharts() {
     tempChart.Update();
     humidChart.Update();
@@ -267,7 +252,7 @@ humidChart = new Chart(ctx2, {
             yAxes: [{
                 scaleLabel: {
                     display: true,
-                    labelString: 'percentage'
+                    labelString: 'Humidity in percentage'
                 },
                 ticks: {
                     beginAtZero:true,
@@ -354,7 +339,7 @@ windChart = new Chart(ctx3, {
             yAxes: [{
                 scaleLabel: {
                     display: true,
-                    labelString: "Meter i sekund"
+                    labelString: "Vindhastighet i meter per sekund"
                 },
                 ticks: {
                     beginAtZero:true,
