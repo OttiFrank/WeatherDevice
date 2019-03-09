@@ -14,7 +14,7 @@ var initialMillis;
 
 loadWindData();
 loadTempHumid();
-setTimeout(removeDataFromCharts, initial);
+//setTimeout(removeDataFromCharts, initial);
 
 // Removes all data from charts and after 5 seconds import new data
 function removeDataFromCharts() {
@@ -25,11 +25,13 @@ function removeDataFromCharts() {
     for (var i = 0; i < winds.length; i++) {
         removeData(windChart);
     };
-    setTimeout(getAll, 5000);    
+    setTimeout(getAll, 1000);    
 }
 
 // Retrieves new data and updates charts 
 function getAll() {
+    
+
     loadTempHumid();
     loadWindData();
     tempChart.update();
@@ -39,7 +41,9 @@ function getAll() {
 }
 function timer() {
     if (count <= 0) {
+        count = initial;
         startTimer();
+        removeDataFromCharts();
         return;
     }
     var current = Date.now();
@@ -49,8 +53,14 @@ function timer() {
 }
 // Displays countdown counter
 function displayCount(count) {
-    var res = Math.trunc((count / 1000) / 60);
-    document.getElementById("timer").innerHTML = res; 
+    var minutes = Math.trunc((count / 1000) / 60);
+    var seconds = count / 1000;
+    if (count > 60000)
+        document.getElementById("timer-minutes").innerHTML = minutes + " minuter";
+    else
+        document.getElementById("timer-minutes").innerHTML = "< " + 1  + " minut"; 
+    // TODO: add seconds 
+    //document.getElementById("timer-seconds").innerHTML = seconds;
 }
 
 $(window).on("load", startTimer);
@@ -99,6 +109,9 @@ function loadTempHumid() {
 // loops through resultset and creates new temperature and humiditiy object 
 // for each resultset iteration and adds each object to the graph
 function setTempHumid(result) {
+    temperatures = [];
+    humidities = [];
+    timestampArray = []; 
     for (var i = 0; i < result.length; i++) {
         let timestamp = result[i].date;
         var date = timestamp.split("T");
@@ -124,6 +137,7 @@ function setTempHumid(result) {
 // loops through resultset and creates new wind object 
 // for each resultset iteration and adds each object to the graph
 function setWindSpeed(result) {
+    winds = [];
     let windTimeArray = [];
     for (var i = 0; i < result.length; i++) {
         let timestamp = result[i].date;
