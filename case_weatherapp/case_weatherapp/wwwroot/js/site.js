@@ -7,21 +7,62 @@ var temperatures = [];
 var humidities = [];
 var winds = [];
 var timestampArray = [];
-var count = 630000;
+var initial = 630000;
+var count = initial;
+var counter;
+var initialMillis;
+
 loadWindData();
 loadTempHumid();
-setTimeout(loadTempHumid, count);
-setTimeout(loadWindData, count);
-setTimeout(updateCharts, count + 5000);
+setTimeout(updateCharts, initial);
+
+
+var latestTempId;
+var isFirstIteration = true;
 
 function updateCharts() {
-    tempChart.data = []; 
-    tempChart.labels = [];
-    tempChart.Update();
-    humidChart.Update();
-    windChart.Update();
-    console.log("Updated charts"); 
+    for (var i = 0; i < temperatures.length; i++) {
+        removeData(tempChart); 
+        removeData(humidChart);
+    };
+    for (var i = 0; i < winds.length; i++) {
+        removeData(windChart);
+    };
+    setTimeout(getAll, 5000);    
 }
+
+function getAll() {
+    loadTempHumid();
+    loadWindData();
+    tempChart.update();
+    windChart.update();
+    humidChart.update();
+    console.log("Updated charts");
+}
+function timer() {
+    if (count <= 0) {
+        startTimer();
+        return;
+    }
+    var current = Date.now();
+    count = count - (current - initialMillis);
+    initialMillis = current;
+    displayCount(count);
+}
+function displayCount(count) {
+    var res = Math.trunc((count / 1000) / 60);
+    document.getElementById("timer").innerHTML = res; 
+}
+
+$(window).on("load", startTimer);
+function startTimer() {
+    clearInterval(counter);
+    initialMillis = Date.now();
+    counter = setInterval(timer, 1);
+}
+
+displayCount(initial);
+
 function loadWindData() {
     $.ajax({
         url: '/Home/WindList',
@@ -30,7 +71,7 @@ function loadWindData() {
         dataType: "json",
         success: function (result) {
             console.log(result);
-            setWindSpeed(result); 
+            setWindSpeed(result);
         },
         error: function (error) {
             console.log(JSON.stringify(error));
@@ -44,8 +85,8 @@ function loadTempHumid() {
         contentType: "application/json;charset=utf-8",
         dataType: "json",
         success: function (result) {
-            console.log(result); 
-            setTempHumid(result);   
+            console.log(result);
+            setTempHumid(result);
         },
         error: function (error) {
             console.log(JSON.stringify(error));
@@ -53,25 +94,36 @@ function loadTempHumid() {
     });
 }
 function setTempHumid(result) {
+    var tempArr = [];
     for (var i = 0; i < result.length; i++) {
         let timestamp = result[i].date;
         var date = timestamp.split("T");
         timestampArray.push(date[0] + " " + date[1]);
 
         var temp = {
+            id: result[i].id,
             temperature: result[i].temperature,
             date: timestampArray[i]
         }
         var humid = {
+            id: result[i].id,
             humidity: result[i].humidity,
             date: timestampArray[i]
         }
+        
         temperatures.push(temp);
+        if (!isFirstIteration) {
+            if (temp.id > temperatures[temperatures.length - 1].id) {
+                tempArr.push(temp);
+                console.log(tempArr);
+            }
+        }
+        
         humidities.push(humid);
         AddData(tempChart, temperatures[i].date, temperatures[i].temperature);
         AddData(humidChart, humidities[i].date, humidities[i].humidity);
-        console.log();
-    }    
+        isFirstIteration = false;
+    }
 }
 
 function setWindSpeed(result) {
@@ -86,8 +138,8 @@ function setWindSpeed(result) {
             date: windTimeArray[i]
         }
         winds.push(wind);
-        AddData(windChart, winds[i].date, winds[i].windspeed); 
-    }    
+        AddData(windChart, winds[i].date, winds[i].windspeed);
+    }
 }
 
 
@@ -138,7 +190,7 @@ tempChart = new Chart(ctx, {
                     } else
                         bar.borderColor = '#07C';
                 }
-                catch (ex) {   
+                catch (ex) {
                 }
             }
         }
@@ -170,8 +222,8 @@ tempChart = new Chart(ctx, {
                     labelString: "Grader i celsius"
                 },
                 ticks: {
-                    beginAtZero:true,
-                    callback: function(value, index, values) {
+                    beginAtZero: true,
+                    callback: function (value, index, values) {
                         return value + '°';
                     }
                 }
@@ -209,7 +261,7 @@ humidChart = new Chart(ctx2, {
             var yPos = yScale.getPixelForValue(0);
 
             var gradientFill = c.ctx.createLinearGradient(0, 0, 0, c.height);
-            gradientFill.addColorStop(0, 'rgba(0, 70, 180, 1');            
+            gradientFill.addColorStop(0, 'rgba(0, 70, 180, 1');
             gradientFill.addColorStop(yPos / c.height - 0.01, 'rgba(0, 70, 180, 0.2)');
 
             var model = x.data.datasets[0]._meta[Object.keys(dataset._meta)[0]].dataset._model;
@@ -257,8 +309,8 @@ humidChart = new Chart(ctx2, {
                     labelString: 'Humidity in percentage'
                 },
                 ticks: {
-                    beginAtZero:true,
-                    callback: function(value, index, values) {
+                    beginAtZero: true,
+                    callback: function (value, index, values) {
                         return value + '%';
                     }
                 }
@@ -344,8 +396,8 @@ windChart = new Chart(ctx3, {
                     labelString: "Vindhastighet i meter per sekund"
                 },
                 ticks: {
-                    beginAtZero:true,
-                    callback: function(value, index, values) {
+                    beginAtZero: true,
+                    callback: function (value, index, values) {
                         return value + 'm/s';
                     }
                 }
@@ -360,6 +412,13 @@ function AddData(chart, label, data) {
         dataset.data.push(data)
     });
     chart.update();
+}
+
+function removeData(chart) {
+    chart.data.labels.pop();
+    chart.data.datasets.forEach((dataset) => {
+        dataset.data.pop();
+    });
 }
 
 
