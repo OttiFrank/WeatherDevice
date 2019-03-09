@@ -14,13 +14,10 @@ var initialMillis;
 
 loadWindData();
 loadTempHumid();
-setTimeout(updateCharts, initial);
+setTimeout(removeDataFromCharts, initial);
 
-
-var latestTempId;
-var isFirstIteration = true;
-
-function updateCharts() {
+// Removes all data from charts and after 5 seconds import new data
+function removeDataFromCharts() {
     for (var i = 0; i < temperatures.length; i++) {
         removeData(tempChart); 
         removeData(humidChart);
@@ -31,6 +28,7 @@ function updateCharts() {
     setTimeout(getAll, 5000);    
 }
 
+// Retrieves new data and updates charts 
 function getAll() {
     loadTempHumid();
     loadWindData();
@@ -49,6 +47,7 @@ function timer() {
     initialMillis = current;
     displayCount(count);
 }
+// Displays countdown counter
 function displayCount(count) {
     var res = Math.trunc((count / 1000) / 60);
     document.getElementById("timer").innerHTML = res; 
@@ -63,6 +62,7 @@ function startTimer() {
 
 displayCount(initial);
 
+// Loads wind speed data from database
 function loadWindData() {
     $.ajax({
         url: '/Home/WindList',
@@ -78,6 +78,8 @@ function loadWindData() {
         }
     });
 }
+
+// Loads temperature and humidity data from database
 function loadTempHumid() {
     $.ajax({
         url: '/Home/TempHumidList',
@@ -93,8 +95,10 @@ function loadTempHumid() {
         }
     });
 }
+
+// loops through resultset and creates new temperature and humiditiy object 
+// for each resultset iteration and adds each object to the graph
 function setTempHumid(result) {
-    var tempArr = [];
     for (var i = 0; i < result.length; i++) {
         let timestamp = result[i].date;
         var date = timestamp.split("T");
@@ -109,23 +113,16 @@ function setTempHumid(result) {
             id: result[i].id,
             humidity: result[i].humidity,
             date: timestampArray[i]
-        }
-        
+        }        
         temperatures.push(temp);
-        if (!isFirstIteration) {
-            if (temp.id > temperatures[temperatures.length - 1].id) {
-                tempArr.push(temp);
-                console.log(tempArr);
-            }
-        }
-        
         humidities.push(humid);
         AddData(tempChart, temperatures[i].date, temperatures[i].temperature);
         AddData(humidChart, humidities[i].date, humidities[i].humidity);
-        isFirstIteration = false;
     }
 }
 
+// loops through resultset and creates new wind object 
+// for each resultset iteration and adds each object to the graph
 function setWindSpeed(result) {
     let windTimeArray = [];
     for (var i = 0; i < result.length; i++) {
@@ -142,7 +139,7 @@ function setWindSpeed(result) {
     }
 }
 
-
+// Temperature chart
 var ctx = document.getElementById("myTempChart").getContext('2d');
 tempChart = new Chart(ctx, {
     type: 'line',
@@ -232,6 +229,8 @@ tempChart = new Chart(ctx, {
     }
 });
 
+
+// Humidity chart
 var ctx2 = document.getElementById("myHumidChart").getContext('2d');
 humidChart = new Chart(ctx2, {
     type: 'line',
@@ -319,6 +318,7 @@ humidChart = new Chart(ctx2, {
     }
 });
 
+// Wind chart
 var ctx3 = document.getElementById("myWindSpeedChart").getContext('2d');
 windChart = new Chart(ctx3, {
     type: 'line',
@@ -406,6 +406,7 @@ windChart = new Chart(ctx3, {
     }
 });
 
+// Adds data to specific chart
 function AddData(chart, label, data) {
     chart.data.labels.push(label);
     chart.data.datasets.forEach((dataset) => {
@@ -414,6 +415,7 @@ function AddData(chart, label, data) {
     chart.update();
 }
 
+// Removes data from specific chart
 function removeData(chart) {
     chart.data.labels.pop();
     chart.data.datasets.forEach((dataset) => {
