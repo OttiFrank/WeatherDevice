@@ -55,7 +55,7 @@ function displayCount(count) {
     if (count > 60000)
         document.getElementById("timer-minutes").innerHTML = minutes + " minuter";
     else
-        document.getElementById("timer-minutes").innerHTML = "< " + 1  + " minut"; 
+        document.getElementById("timer-minutes").innerHTML = "< 1 minut"; 
     // TODO: add seconds 
     //document.getElementById("timer-seconds").innerHTML = seconds;
 }
@@ -87,9 +87,30 @@ function loadWindData() {
 };
 
 $('#timeScale input').on('change', function () {
-    alert($('input[name=inlineRadioOptions]:checked', '#timeScale').val());
+    var selectedTimeScale = $('input[name=inlineRadioOptions]:checked', '#timeScale').val();
+    var today = Date.today().setTimeToNow();
+    var selectedDate;
+    console.log(today);
+    switch(selectedTimeScale) {
+        case "day":
+        selectedDate = new Date().last().day().setTimeToNow();
+        filterGraph(selectedDate);
+        break;
+        case "week":
+        selectedDate = new Date().last().week().setTimeToNow();
+        filterGraph(selectedDate);
+        break;
+        case "month":
+        selectedDate = new Date().last().month().setTimeToNow();
+        filterGraph(selectedDate);
+        break;
+    }
+    console.log(selectedDate);
 });
 
+function filterGraph(date){
+
+}
 
 // Loads temperature and humidity data from database
 function loadTempHumid() {
@@ -138,6 +159,7 @@ function setTempHumid(result) {
         AddData(tempChart, temperatures[i].date, temperatures[i].temperature);
         AddData(humidChart, humidities[i].date, humidities[i].humidity);
     }
+    console.log(timestampArray);
 }
 
 // loops through resultset and creates new wind object 
