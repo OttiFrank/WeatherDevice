@@ -17,8 +17,6 @@
   </ItemGroup>
   <ItemGroup>
     <Content Remove="wwwroot\js\EmptyJSFile.js" />
-  </ItemGroup>
-  <ItemGroup>
-    <Folder Include="wwwroot\lib\dateJs\" />
+    <Content Remove="wwwroot\js\dateJs\date-sv-SE.js" />
   </ItemGroup>
 </Project>

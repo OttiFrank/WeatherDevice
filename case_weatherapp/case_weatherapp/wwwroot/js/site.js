@@ -30,14 +30,11 @@ function removeDataFromCharts() {
 
 // Retrieves new data and updates charts 
 function getAll() {
-    
-
     loadTempHumid();
     loadWindData();
     tempChart.update();
     windChart.update();
     humidChart.update();
-    console.log("Updated charts");
 }
 function timer() {
     if (count <= 0) {
@@ -106,6 +103,11 @@ function loadTempHumid() {
     });
 }
 
+function convertDate(date){
+    var newDate = Date.parse(date).toString('ddd d MMM, HH:mm');
+    return newDate;
+}
+
 // loops through resultset and creates new temperature and humiditiy object 
 // for each resultset iteration and adds each object to the graph
 function setTempHumid(result) {
@@ -114,9 +116,8 @@ function setTempHumid(result) {
     timestampArray = []; 
     for (var i = 0; i < result.length; i++) {
         let timestamp = result[i].date;
-        var date = timestamp.split("T");
-        timestampArray.push(date[0] + " " + date[1]);
-
+        var date = new Date(timestamp+"Z");
+        timestampArray.push(convertDate(date));
         var temp = {
             id: result[i].id,
             temperature: result[i].temperature,
