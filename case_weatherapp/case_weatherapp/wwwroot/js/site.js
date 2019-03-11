@@ -7,6 +7,7 @@ var temperatures = [];
 var humidities = [];
 var winds = [];
 var timeLabels = [];
+var timestamps = [];
 var initial = 630000;
 var count = initial;
 var counter;
@@ -19,13 +20,13 @@ loadTempHumid();
 // Removes all data from charts and after 5 seconds import new data
 function removeDataFromCharts() {
     for (var i = 0; i < temperatures.length; i++) {
-        removeData(tempChart); 
+        removeData(tempChart);
         removeData(humidChart);
     };
     for (var i = 0; i < winds.length; i++) {
         removeData(windChart);
     };
-    setTimeout(getAll, 1000);    
+    setTimeout(getAll, 1000);
 }
 
 // Retrieves new data and updates charts 
@@ -55,7 +56,7 @@ function displayCount(count) {
     if (count > 60000)
         document.getElementById("timer-minutes").innerHTML = minutes + " minuter";
     else
-        document.getElementById("timer-minutes").innerHTML = "< 1 minut"; 
+        document.getElementById("timer-minutes").innerHTML = "< 1 minut";
     // TODO: add seconds 
     //document.getElementById("timer-seconds").innerHTML = seconds;
 }
@@ -88,27 +89,31 @@ function loadWindData() {
 
 $('#timeScale input').on('change', function () {
     var selectedTimeScale = $('input[name=inlineRadioOptions]:checked', '#timeScale').val();
-    var today = Date.today().setTimeToNow();
     var selectedDate;
-    console.log(today);
-    switch(selectedTimeScale) {
+    switch (selectedTimeScale) {
         case "day":
-        selectedDate = new Date().last().day().setTimeToNow();
-        filterGraph(selectedDate);
-        break;
+            selectedDate = new Date().last().day().setTimeToNow();
+            filterGraphs(selectedDate);
+            break;
         case "week":
-        selectedDate = new Date().last().week().setTimeToNow();
-        filterGraph(selectedDate);
-        break;
+            selectedDate = new Date().last().week().setTimeToNow();
+            filterGraphs(selectedDate);
+            break;
         case "month":
-        selectedDate = new Date().last().month().setTimeToNow();
-        filterGraph(selectedDate);
-        break;
+            selectedDate = new Date().last().month().setTimeToNow();
+            filterGraphs(selectedDate);
+            break;
     }
     console.log(selectedDate);
 });
 
-function filterGraph(date){
+function filterGraphs(date) {
+    var today = Date.today().setTimeToNow();
+    for (let i = 0; i <= timestamps.length; i++) {
+        if (Date.today().between(date, today)) {
+
+        }
+    }
 
 }
 
@@ -129,7 +134,7 @@ function loadTempHumid() {
     });
 }
 
-function convertDate(date){
+function convertDate(date) {
     var newDate = Date.parse(date).toString('ddd d MMM, HH:mm');
     return newDate;
 }
@@ -139,11 +144,11 @@ function convertDate(date){
 function setTempHumid(result) {
     temperatures = [];
     humidities = [];
-    timeLabels = []; 
-    var timestamps = []; 
+    timeLabels = [];
+    timestamps = [];
     for (var i = 0; i < result.length; i++) {
         let timestamp = result[i].date;
-        var date = new Date(timestamp+"Z");
+        var date = new Date(timestamp + "Z");
         timeLabels.push(convertDate(date));
         var temp = {
             id: result[i].id,
@@ -154,14 +159,33 @@ function setTempHumid(result) {
             id: result[i].id,
             humidity: result[i].humidity,
             date: timeLabels[i]
-        }        
+        }
         temperatures.push(temp);
         humidities.push(humid);
-        timestamps.push(date); 
+        timestamps.push(date);
+
         AddData(tempChart, temperatures[i].date, temperatures[i].temperature);
         AddData(humidChart, humidities[i].date, humidities[i].humidity);
     }
-    console.log(timeLabels);
+    
+    //addDataToGraph("tempHumid");
+    console.log(timestamps);
+}
+function addDataToGraph(type) {
+    switch (type) {
+        case "tempHumid":
+            for (var i = 0; i < temperatures.length; i++) {
+                AddData(tempChart, tempTimestamps[i].date, array[i].temperature);
+                AddData(humidChart, tempHumid[i].date, array[i].temperature);
+            }
+            break;
+        case "wind":
+        for (var i = 0; i < winds.length; i++) {
+            AddData(graph, array[i].date, array[i].temperature);
+        }
+            break;
+    }
+    
 }
 
 // loops through resultset and creates new wind object 
