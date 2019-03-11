@@ -1,8 +1,4 @@
-﻿// Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
-// for details on configuring this project to bundle and minify static web assets.
-
-// Write your JavaScript code.
-var tempChart, humidChart, windChart;
+﻿var tempChart, humidChart, windChart;
 var temperatures = [];
 var humidities = [];
 var winds = [];
@@ -15,77 +11,8 @@ var initialMillis;
 
 loadWindData();
 loadTempHumid();
-//setTimeout(removeDataFromCharts, initial);
-
-// Removes all data from charts and after 5 seconds import new data
-function removeDataFromCharts() {
-    for (var i = 0; i < temperatures.length; i++) {
-        removeData(tempChart);
-        removeData(humidChart);
-    };
-    for (var i = 0; i < winds.length; i++) {
-        removeData(windChart);
-    };
-    setTimeout(getAll, 1000);
-}
-
-// Retrieves new data and updates charts 
-function getAll() {
-    loadTempHumid();
-    loadWindData();
-    tempChart.update();
-    windChart.update();
-    humidChart.update();
-}
-function timer() {
-    if (count <= 0) {
-        count = initial;
-        startTimer();
-        removeDataFromCharts();
-        return;
-    }
-    var current = Date.now();
-    count = count - (current - initialMillis);
-    initialMillis = current;
-    displayCount(count);
-}
-// Displays countdown counter
-function displayCount(count) {
-    var minutes = Math.trunc((count / 1000) / 60);
-    var seconds = count / 1000;
-    if (count > 60000)
-        document.getElementById("timer-minutes").innerHTML = minutes + " minuter";
-    else
-        document.getElementById("timer-minutes").innerHTML = "< 1 minut";
-    // TODO: add seconds 
-    //document.getElementById("timer-seconds").innerHTML = seconds;
-}
-
 $(window).on("load", startTimer);
-function startTimer() {
-    clearInterval(counter);
-    initialMillis = Date.now();
-    counter = setInterval(timer, 1);
-}
-
 displayCount(initial);
-
-// Loads wind speed data from database
-function loadWindData() {
-    $.ajax({
-        url: '/Home/WindList',
-        type: "GET",
-        contentType: "application/json;charset=utf-8",
-        dataType: "json",
-        success: function (result) {
-            console.log(result);
-            setWindSpeed(result);
-        },
-        error: function (error) {
-            console.log(JSON.stringify(error));
-        }
-    });
-};
 
 $('#timeScale input').on('change', function () {
     var selectedTimeScale = $('input[name=inlineRadioOptions]:checked', '#timeScale').val();
@@ -103,21 +30,59 @@ $('#timeScale input').on('change', function () {
             selectedDate = new Date().last().month().setTimeToNow();
             filterGraphs(selectedDate);
             break;
-    }
-    console.log(selectedDate);
+    };
 });
 
-function filterGraphs(date) {
-    var today = Date.today().setTimeToNow();
-    for (let i = 0; i <= timestamps.length; i++) {
-        if (Date.today().between(date, today)) {
-
-        }
+// Helper functions for Countdown timer 
+function timer() {
+    if (count <= 0) {
+        count = initial;
+        startTimer();
+        removeAllDataFromCharts();
+        return;
     }
+    var current = Date.now();
+    count = count - (current - initialMillis);
+    initialMillis = current;
+    displayCount(count);
+};
+function startTimer() {
+    clearInterval(counter);
+    initialMillis = Date.now();
+    counter = setInterval(timer, 1);
+};
+function displayCount(count) {
+    var minutes = Math.trunc((count / 1000) / 60);
+    var seconds = count / 1000;
+    if (count > 60000)
+        document.getElementById("timer-minutes").innerHTML = minutes + " minuter";
+    else
+        document.getElementById("timer-minutes").innerHTML = "< 1 minut";
+};
 
-}
-
-// Loads temperature and humidity data from database
+// Loads wind speed data and temperatures from database
+function getAll() {
+    loadTempHumid();
+    loadWindData();
+    tempChart.update();
+    windChart.update();
+    humidChart.update();
+};
+function loadWindData() {
+    $.ajax({
+        url: '/Home/WindList',
+        type: "GET",
+        contentType: "application/json;charset=utf-8",
+        dataType: "json",
+        success: function (result) {
+            console.log(result);
+            setWindSpeed(result);
+        },
+        error: function (error) {
+            console.log(JSON.stringify(error));
+        };
+    });
+};
 function loadTempHumid() {
     $.ajax({
         url: '/Home/TempHumidList',
@@ -132,14 +97,9 @@ function loadTempHumid() {
             console.log(JSON.stringify(error));
         }
     });
-}
+};
 
-function convertDate(date) {
-    var newDate = Date.parse(date).toString('ddd d MMM, HH:mm');
-    return newDate;
-}
-
-// loops through resultset and creates new temperature and humiditiy object 
+// loops through resultset and creates new temperature, humiditiy and wind object 
 // for each resultset iteration and adds each object to the graph
 function setTempHumid(result) {
     temperatures = [];
@@ -149,7 +109,7 @@ function setTempHumid(result) {
     for (var i = 0; i < result.length; i++) {
         let timestamp = result[i].date;
         var date = new Date(timestamp + "Z");
-        timeLabels.push(convertDate(date));
+        timeLabels.push(convertDateToString(date));
         var temp = {
             id: result[i].id,
             temperature: result[i].temperature,
@@ -167,29 +127,10 @@ function setTempHumid(result) {
         AddData(tempChart, temperatures[i].date, temperatures[i].temperature);
         AddData(humidChart, humidities[i].date, humidities[i].humidity);
     }
-    
+
     //addDataToGraph("tempHumid");
     console.log(timestamps);
 }
-function addDataToGraph(type) {
-    switch (type) {
-        case "tempHumid":
-            for (var i = 0; i < temperatures.length; i++) {
-                AddData(tempChart, tempTimestamps[i].date, array[i].temperature);
-                AddData(humidChart, tempHumid[i].date, array[i].temperature);
-            }
-            break;
-        case "wind":
-        for (var i = 0; i < winds.length; i++) {
-            AddData(graph, array[i].date, array[i].temperature);
-        }
-            break;
-    }
-    
-}
-
-// loops through resultset and creates new wind object 
-// for each resultset iteration and adds each object to the graph
 function setWindSpeed(result) {
     winds = [];
     let windTimeArray = [];
@@ -206,6 +147,60 @@ function setWindSpeed(result) {
         AddData(windChart, winds[i].date, winds[i].windspeed);
     }
 }
+
+// Helper functions for CRUD-operations on specific charts
+function AddData(chart, label, data) {
+    chart.data.labels.push(label);
+    chart.data.datasets.forEach((dataset) => {
+        dataset.data.push(data)
+    });
+    chart.update();
+};
+function removeData(chart) {
+    chart.data.labels.pop();
+    chart.data.datasets.forEach((dataset) => {
+        dataset.data.pop();
+    });
+};
+function addDataToGraph(type) {
+    switch (type) {
+        case "tempHumid":
+            for (var i = 0; i < temperatures.length; i++) {
+                AddData(tempChart, tempTimestamps[i].date, array[i].temperature);
+                AddData(humidChart, tempHumid[i].date, array[i].temperature);
+            }
+            break;
+        case "wind":
+            for (var i = 0; i < winds.length; i++) {
+                AddData(graph, array[i].date, array[i].temperature);
+            }
+            break;
+    };
+};
+function filterGraphs(date) {
+    var today = Date.today().setTimeToNow();
+    for (let i = 0; i <= timestamps.length; i++) {
+        if (Date.today().between(date, today)) {
+            // TODO: stuff
+        }
+    };
+};
+function removeAllDataFromCharts() {
+    for (var i = 0; i < temperatures.length; i++) {
+        removeData(tempChart);
+        removeData(humidChart);
+    };
+    for (var i = 0; i < winds.length; i++) {
+        removeData(windChart);
+    };
+    setTimeout(getAll, 1000);
+}
+
+
+function convertDateToString(date) {
+    var newDate = Date.parse(date).toString('ddd d MMM, HH:mm');
+    return newDate;
+};
 
 // Temperature chart
 var ctx = document.getElementById("myTempChart").getContext('2d');
@@ -296,8 +291,6 @@ tempChart = new Chart(ctx, {
         }
     }
 });
-
-
 // Humidity chart
 var ctx2 = document.getElementById("myHumidChart").getContext('2d');
 humidChart = new Chart(ctx2, {
@@ -385,7 +378,6 @@ humidChart = new Chart(ctx2, {
         }
     }
 });
-
 // Wind chart
 var ctx3 = document.getElementById("myWindSpeedChart").getContext('2d');
 windChart = new Chart(ctx3, {
@@ -473,22 +465,5 @@ windChart = new Chart(ctx3, {
         }
     }
 });
-
-// Adds data to specific chart
-function AddData(chart, label, data) {
-    chart.data.labels.push(label);
-    chart.data.datasets.forEach((dataset) => {
-        dataset.data.push(data)
-    });
-    chart.update();
-}
-
-// Removes data from specific chart
-function removeData(chart) {
-    chart.data.labels.pop();
-    chart.data.datasets.forEach((dataset) => {
-        dataset.data.pop();
-    });
-}
 
 
