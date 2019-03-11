@@ -84,7 +84,12 @@ function loadWindData() {
             console.log(JSON.stringify(error));
         }
     });
-}
+};
+
+$('#timeScale input').on('change', function () {
+    alert($('input[name=inlineRadioOptions]:checked', '#timeScale').val());
+});
+
 
 // Loads temperature and humidity data from database
 function loadTempHumid() {
