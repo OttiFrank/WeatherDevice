@@ -6,7 +6,7 @@ var tempChart, humidChart, windChart;
 var temperatures = [];
 var humidities = [];
 var winds = [];
-var timestampArray = [];
+var timeLabels = [];
 var initial = 630000;
 var count = initial;
 var counter;
@@ -139,27 +139,29 @@ function convertDate(date){
 function setTempHumid(result) {
     temperatures = [];
     humidities = [];
-    timestampArray = []; 
+    timeLabels = []; 
+    var timestamps = []; 
     for (var i = 0; i < result.length; i++) {
         let timestamp = result[i].date;
         var date = new Date(timestamp+"Z");
-        timestampArray.push(convertDate(date));
+        timeLabels.push(convertDate(date));
         var temp = {
             id: result[i].id,
             temperature: result[i].temperature,
-            date: timestampArray[i]
+            date: timeLabels[i]
         }
         var humid = {
             id: result[i].id,
             humidity: result[i].humidity,
-            date: timestampArray[i]
+            date: timeLabels[i]
         }        
         temperatures.push(temp);
         humidities.push(humid);
+        timestamps.push(date); 
         AddData(tempChart, temperatures[i].date, temperatures[i].temperature);
         AddData(humidChart, humidities[i].date, humidities[i].humidity);
     }
-    console.log(timestampArray);
+    console.log(timeLabels);
 }
 
 // loops through resultset and creates new wind object 
