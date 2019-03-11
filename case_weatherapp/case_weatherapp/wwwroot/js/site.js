@@ -1,17 +1,21 @@
 ﻿var tempChart, humidChart, windChart;
-var temperatures = [];
-var humidities = [];
+let tempHumidResult = [];
 var winds = [];
 var timeLabels = [];
-var timestamps = [];
-var initial = 630000;
+let tempArray = [];
+let tempWind = [];
+var initial = 315000;
 var count = initial;
 var counter;
 var initialMillis;
+let isFirstIteration = true;
 
-loadWindData();
-loadTempHumid();
-$(window).on("load", startTimer);
+
+$(window).on("load", function () {
+    loadWindData();
+    loadTempHumid();
+    startTimer();
+})
 displayCount(initial);
 
 $('#timeScale input').on('change', function () {
@@ -19,7 +23,8 @@ $('#timeScale input').on('change', function () {
     var selectedDate;
     switch (selectedTimeScale) {
         case "day":
-            selectedDate = new Date().last().day().setTimeToNow();
+            // TODO: change back to day
+            selectedDate = new Date().last().saturday().setTimeToNow();
             filterGraphs(selectedDate);
             break;
         case "week":
@@ -38,7 +43,7 @@ function timer() {
     if (count <= 0) {
         count = initial;
         startTimer();
-        removeAllDataFromCharts();
+        updateCharts();
         return;
     }
     var current = Date.now();
@@ -75,12 +80,14 @@ function loadWindData() {
         contentType: "application/json;charset=utf-8",
         dataType: "json",
         success: function (result) {
-            console.log(result);
+            if (isFirstIteration)
+                tempWind = result;
+
             setWindSpeed(result);
         },
         error: function (error) {
             console.log(JSON.stringify(error));
-        };
+        }
     });
 };
 function loadTempHumid() {
@@ -90,7 +97,9 @@ function loadTempHumid() {
         contentType: "application/json;charset=utf-8",
         dataType: "json",
         success: function (result) {
-            console.log(result);
+            if (isFirstIteration)
+                tempArray = result;
+            isFirstIteration = false;
             setTempHumid(result);
         },
         error: function (error) {
@@ -102,34 +111,8 @@ function loadTempHumid() {
 // loops through resultset and creates new temperature, humiditiy and wind object 
 // for each resultset iteration and adds each object to the graph
 function setTempHumid(result) {
-    temperatures = [];
-    humidities = [];
-    timeLabels = [];
-    timestamps = [];
-    for (var i = 0; i < result.length; i++) {
-        let timestamp = result[i].date;
-        var date = new Date(timestamp + "Z");
-        timeLabels.push(convertDateToString(date));
-        var temp = {
-            id: result[i].id,
-            temperature: result[i].temperature,
-            date: timeLabels[i]
-        }
-        var humid = {
-            id: result[i].id,
-            humidity: result[i].humidity,
-            date: timeLabels[i]
-        }
-        temperatures.push(temp);
-        humidities.push(humid);
-        timestamps.push(date);
-
-        AddData(tempChart, temperatures[i].date, temperatures[i].temperature);
-        AddData(humidChart, humidities[i].date, humidities[i].humidity);
-    }
-
-    //addDataToGraph("tempHumid");
-    console.log(timestamps);
+    tempHumidResult = result;
+    addDataToGraph();
 }
 function setWindSpeed(result) {
     winds = [];
@@ -144,18 +127,22 @@ function setWindSpeed(result) {
             date: windTimeArray[i]
         }
         winds.push(wind);
-        AddData(windChart, winds[i].date, winds[i].windspeed);
+        addData(windChart, winds[i].date, winds[i].windspeed);
     }
 }
 
 // Helper functions for CRUD-operations on specific charts
-function AddData(chart, label, data) {
+function addData(chart, label, data) {
     chart.data.labels.push(label);
     chart.data.datasets.forEach((dataset) => {
         dataset.data.push(data)
     });
     chart.update();
 };
+function updateCharts() {
+    removeAllDataFromCharts();
+    setTimeout(getAll, 1000);
+}
 function removeData(chart) {
     chart.data.labels.pop();
     chart.data.datasets.forEach((dataset) => {
@@ -163,43 +150,69 @@ function removeData(chart) {
     });
 };
 function addDataToGraph(type) {
+    removeAllDataFromCharts();
+    var labels;
     switch (type) {
         case "tempHumid":
-            for (var i = 0; i < temperatures.length; i++) {
-                AddData(tempChart, tempTimestamps[i].date, array[i].temperature);
-                AddData(humidChart, tempHumid[i].date, array[i].temperature);
+            labels = convertDateToString(tempArray);
+            for (var i = 0; i < tempArray.length; i++) {
+                addData(tempChart, labels[i], tempArray[i].temperature);
+                addData(humidChart, labels[i], tempArray[i].humidity);
             }
             break;
         case "wind":
-            for (var i = 0; i < winds.length; i++) {
-                AddData(graph, array[i].date, array[i].temperature);
+            labels = convertDateToString(tempWind); 
+            for (var i = 0; i < tempWind.length; i++) {
+                addData(windChart, labels[i], tempWind[i].windspeed);
             }
             break;
+        default:
+            labels = convertDateToString(tempArray);
+            for (var i = 0; i < tempArray.length; i++) {
+                addData(tempChart, labels[i], tempArray[i].temperature);
+                addData(humidChart, labels[i], tempArray[i].humidity);
+            }
+            labels = convertDateToString(tempWind);
+            for (var i = 0; i < tempWind.length; i++) {
+                addData(windChart, labels[i], tempWind[i].windspeed);
+            }
+            break; 
     };
 };
-function filterGraphs(date) {
+function filterGraphs(fromDate) {
     var today = Date.today().setTimeToNow();
-    for (let i = 0; i <= timestamps.length; i++) {
-        if (Date.today().between(date, today)) {
-            // TODO: stuff
+    tempArray = [];
+    tempWind = [];
+    for (let i = 0; i < tempHumidResult.length; i++) {
+        if (Date.parse(tempHumidResult[i].date).between(fromDate, today)) {
+            tempArray.push(tempHumidResult[i]);
         }
     };
+    for (let i = 0; i < winds.length; i++) {
+        if (Date.parse(winds[i].date).between(fromDate, today)) {
+            tempWind.push(winds[i]);
+        }
+    };
+    removeAllDataFromCharts();
+    addDataToGraph();
 };
 function removeAllDataFromCharts() {
-    for (var i = 0; i < temperatures.length; i++) {
+    for (var i = 0; i < tempHumidResult.length; i++) {
         removeData(tempChart);
         removeData(humidChart);
     };
     for (var i = 0; i < winds.length; i++) {
         removeData(windChart);
     };
-    setTimeout(getAll, 1000);
 }
 
-
-function convertDateToString(date) {
-    var newDate = Date.parse(date).toString('ddd d MMM, HH:mm');
-    return newDate;
+function convertDateToString(array) {
+    timeLabels = [];
+    for (let i = 0; i < array.length; i++) {
+        var newDate = Date.parse(array[i].date).toString('ddd d MMM, HH:mm');
+        timeLabels.push(newDate);
+    }
+    return timeLabels;
 };
 
 // Temperature chart
@@ -256,6 +269,12 @@ tempChart = new Chart(ctx, {
         }
     }],
     options: {
+        title: {
+            display: true,
+            text: 'Temperatur',
+            fontSize: 24,
+            fontStyle: 'bold'
+        },
         legend: {
             display: false
         },
@@ -343,6 +362,12 @@ humidChart = new Chart(ctx2, {
         }
     }],
     options: {
+        title: {
+            display: true,
+            text: 'Luftfuktighet',
+            fontSize: 24,
+            fontStyle: 'bold'
+        },
         legend: {
             display: false
         },
@@ -430,6 +455,12 @@ windChart = new Chart(ctx3, {
         }
     }],
     options: {
+        title: {
+            display: true,
+            text: 'Vindhastighet',
+            fontSize: 24,
+            fontStyle: 'bold'
+        },
         legend: {
             display: false
         },
