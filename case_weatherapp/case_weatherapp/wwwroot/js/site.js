@@ -4,7 +4,7 @@ var winds = [];
 var timeLabels = [];
 let tempArray = [];
 let tempWind = [];
-var initial = 315000;
+var initial = 300000;
 var count = initial;
 var counter;
 var initialMillis;
@@ -24,15 +24,19 @@ $('#timeScale input').on('change', function () {
     switch (selectedTimeScale) {
         case "day":
             // TODO: change back to day
-            selectedDate = new Date().last().saturday().setTimeToNow();
+            selectedDate = new Date().last().saturday();
             filterGraphs(selectedDate);
             break;
         case "week":
-            selectedDate = new Date().last().week().setTimeToNow();
+            selectedDate = new Date().last().week();
             filterGraphs(selectedDate);
             break;
         case "month":
-            selectedDate = new Date().last().month().setTimeToNow();
+            selectedDate = new Date().last().month();
+            filterGraphs(selectedDate);
+            break;
+        case "year":
+            selectedDate = new Date().last().year();
             filterGraphs(selectedDate);
             break;
     };
@@ -43,7 +47,7 @@ function timer() {
     if (count <= 0) {
         count = initial;
         startTimer();
-        updateCharts();
+        addDataToGraph();
         return;
     }
     var current = Date.now();
@@ -58,11 +62,11 @@ function startTimer() {
 };
 function displayCount(count) {
     var minutes = Math.trunc((count / 1000) / 60);
-    var seconds = count / 1000;
+    var seconds = Math.floor((count % (1000 * 60)) / 1000);
     if (count > 60000)
-        document.getElementById("timer-minutes").innerHTML = minutes + " minuter";
+        document.getElementById("timer-minutes").innerHTML = minutes + "m " + seconds + "s";
     else
-        document.getElementById("timer-minutes").innerHTML = "< 1 minut";
+        document.getElementById("timer-minutes").innerHTML = seconds + "s";
 };
 
 // Loads wind speed data and temperatures from database
