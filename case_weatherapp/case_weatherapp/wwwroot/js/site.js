@@ -82,7 +82,6 @@ function loadWindData() {
         success: function (result) {
             if (isFirstIteration)
                 tempWind = result;
-
             setWindSpeed(result);
         },
         error: function (error) {
@@ -108,27 +107,14 @@ function loadTempHumid() {
     });
 };
 
-// loops through resultset and creates new temperature, humiditiy and wind object 
-// for each resultset iteration and adds each object to the graph
+
 function setTempHumid(result) {
     tempHumidResult = result;
-    addDataToGraph();
+    addDataToGraph("tempHumid");
 }
 function setWindSpeed(result) {
-    winds = [];
-    let windTimeArray = [];
-    for (var i = 0; i < result.length; i++) {
-        let timestamp = result[i].date;
-        var date = timestamp.split("T");
-        windTimeArray.push(date[0] + " " + date[1]);
-
-        var wind = {
-            windspeed: result[i].windspeed,
-            date: windTimeArray[i]
-        }
-        winds.push(wind);
-        addData(windChart, winds[i].date, winds[i].windspeed);
-    }
+    winds = result;
+    addDataToGraph("wind");
 }
 
 // Helper functions for CRUD-operations on specific charts
