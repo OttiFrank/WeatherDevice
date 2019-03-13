@@ -9,8 +9,7 @@ var counter;
 var initialMillis;
 
 $(window).on("load", function () {
-    loadWindData();
-    setTimeout(loadTempHumid, 1000);
+    getAll();
     startTimer();
 })
 displayCount(initial);
@@ -24,7 +23,7 @@ function timer() {
     if (count <= 0) {
         count = initial;
         startTimer();
-        addDataToGraph();
+        getAll();
         return;
     }
     var current = Date.now();
@@ -47,13 +46,10 @@ function displayCount(count) {
 };
 
 // Loads wind speed data and temperatures from database
-/*function getAll() {
+function getAll() {
     loadWindData();
-    loadTempHumid();
-    tempChart.update();
-    windChart.update();
-    humidChart.update();
-};*/
+    setTimeout(loadTempHumid, 1000);
+};
 function loadWindData() {
     $.ajax({
         url: '/Home/WindList',
