@@ -7,11 +7,10 @@ var initial = 300000;
 var count = initial;
 var counter;
 var initialMillis;
-let isFirstIteration = true;
 
 $(window).on("load", function () {
     loadWindData();
-    loadTempHumid();
+    setTimeout(loadTempHumid, 1000);
     startTimer();
 })
 displayCount(initial);
@@ -48,13 +47,13 @@ function displayCount(count) {
 };
 
 // Loads wind speed data and temperatures from database
-function getAll() {
+/*function getAll() {
     loadWindData();
     loadTempHumid();
     tempChart.update();
     windChart.update();
     humidChart.update();
-};
+};*/
 function loadWindData() {
     $.ajax({
         url: '/Home/WindList',
@@ -62,13 +61,9 @@ function loadWindData() {
         contentType: "application/json;charset=utf-8",
         dataType: "json",
         success: function (result) {
-            console.log("LoadWind = " + isFirstIteration);
-            if (isFirstIteration) {
-                tempWind = result;
-                console.log(result);
-            }
             winds = result;
-            addDataToGraph("wind");
+            tempWind = winds;
+            //addDataToGraph("wind");
         },
         error: function (error) {
             console.log(JSON.stringify(error));
@@ -82,13 +77,9 @@ function loadTempHumid() {
         contentType: "application/json;charset=utf-8",
         dataType: "json",
         success: function (result) {
-            console.log("LoadTempHumid = " + isFirstIteration);
-            if (isFirstIteration) {
-                tempArray = result;
-            }  
-            isFirstIteration = false;
             tempHumidResult = result;
-            addDataToGraph("tempHumid");
+            tempArray = tempHumidResult;
+            addDataToGraph();
         },
         error: function (error) {
             console.log(JSON.stringify(error));
@@ -136,31 +127,27 @@ function removeData(chart) {
 };
 function addDataToGraph(type) {
     removeAllDataFromCharts();
-    var labels;
+    let tempHumidLabels = convertDateToString(tempArray);
+    let windLabels = convertDateToString(tempWind);
     switch (type) {
         case "tempHumid":
-            labels = convertDateToString(tempArray);
             for (var i = 0; i < tempArray.length; i++) {
-                addData(tempChart, labels[i], tempArray[i].temperature);
-                addData(humidChart, labels[i], tempArray[i].humidity);
+                addData(tempChart, tempHumidLabels[i], tempArray[i].temperature);
+                addData(humidChart, tempHumidLabels[i], tempArray[i].humidity);
             }
             break;
         case "wind":
-            console.log(tempWind.length);
-            labels = convertDateToString(tempWind); 
             for (var i = 0; i < tempWind.length; i++) {
-                addData(windChart, labels[i], tempWind[i].windspeed);
+                addData(windChart, windLabels[i], tempWind[i].windspeed);
             }
             break;
-        default:
-            labels = convertDateToString(tempArray);            
+        default:      
             for (var i = 0; i < tempArray.length; i++) {
-                addData(tempChart, labels[i], tempArray[i].temperature);
-                addData(humidChart, labels[i], tempArray[i].humidity);
+                addData(tempChart, tempHumidLabels[i], tempArray[i].temperature);
+                addData(humidChart, tempHumidLabels[i], tempArray[i].humidity);
             }
-            labels = convertDateToString(tempWind);
             for (var i = 0; i < tempWind.length; i++) {
-                addData(windChart, labels[i], tempWind[i].windspeed);
+                addData(windChart, windLabels[i], tempWind[i].windspeed);
             }
             break; 
     };
