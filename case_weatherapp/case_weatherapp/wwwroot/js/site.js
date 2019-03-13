@@ -239,7 +239,7 @@ tempChart = new Chart(ctx, {
     }],
     options: {
         title: {
-            display: true,
+            display: false,
             text: 'Temperatur',
             fontSize: 24,
             fontStyle: 'bold'
@@ -332,7 +332,7 @@ humidChart = new Chart(ctx2, {
     }],
     options: {
         title: {
-            display: true,
+            display: false,
             text: 'Luftfuktighet',
             fontSize: 24,
             fontStyle: 'bold'
@@ -425,7 +425,7 @@ windChart = new Chart(ctx3, {
     }],
     options: {
         title: {
-            display: true,
+            display: false,
             text: 'Vindhastighet',
             fontSize: 24,
             fontStyle: 'bold'

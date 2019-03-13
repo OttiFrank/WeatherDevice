@@ -3,11 +3,13 @@
 }
 <div class="text-center">
     <h1 class="display-4">Väderstation</h1>
-    <p>Uppdaterar graferna om: <span id="timer-minutes"></span> <span id="timer-seconds"></span></p>
     <p>Grafer som visar temperatur, luftfuktighet och vindhastighet från en väderstation i ett garage någonstans i Falun.</p>
+    <p><i class="far fa-clock"></i> <i>Uppdaterar graferna om: <span id="timer-minutes"></span> <span id="timer-seconds"></span></i></p>
+
     <div id="timeScale">
+        <h5><i class="far fa-calendar-alt"></i> Välj ett tidsintervall</h5>
         <div class="form-check form-check-inline">
-            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="dayRadio" value="day" >
+            <input class="form-check-input" type="radio" name="inlineRadioOptions" id="dayRadio" value="day">
             <label class="form-check-label" for="dayRadio">En dag</label>
         </div>
         <div class="form-check form-check-inline">
@@ -24,7 +26,24 @@
         </div>
     </div>
 </div>
-<canvas id="myTempChart" width="1000" height="300" class="chartjs-render-monitor" style="display: block;"></canvas>
-<canvas id="myHumidChart" width="1000" height="300" class="chartjs-render-monitor" style="display: block;"></canvas>
-<canvas id="myWindSpeedChart" width="1000" height="300" class="chartjs-render-monitor" style="display: block;"></canvas>
 
+
+<div class="container">
+    <div class="row">
+        <div class="temperature col-md-12">
+            <h4>Temperatur <i class="fas fa-thermometer-half"></i></h4>
+            <canvas id="myTempChart" width="1000" height="300" class="chartjs-render-monitor" style="display: block;"></canvas>
+        </div>
+        <div class="humidity col-md-12">
+            <h4>Luftfuktighet <i class="fas fa-tint"></i></h4>
+            <canvas id="myHumidChart" width="1000" height="300" class="chartjs-render-monitor" style="display: block;"></canvas>
+        </div>
+        <div class="wind col-md-12">
+            <h4>Vindhastighet <i class="fas fa-wind"></i></h4>
+            <canvas id="myWindSpeedChart" width="1000" height="300" class="chartjs-render-monitor" style="display: block;"></canvas>
+        </div>
+        
+        
+        
+    </div>
+</div>
