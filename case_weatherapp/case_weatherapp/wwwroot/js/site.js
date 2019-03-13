@@ -17,27 +17,7 @@ $(window).on("load", function () {
 displayCount(initial);
 
 $('#timeScale input').on('change', function () {
-    var selectedTimeScale = $('input[name=inlineRadioOptions]:checked', '#timeScale').val();
-    var selectedDate;
-    switch (selectedTimeScale) {
-        case "day":
-            // TODO: change back to day
-            selectedDate = new Date().last().saturday();
-            filterGraphs(selectedDate);
-            break;
-        case "week":
-            selectedDate = new Date().last().week();
-            filterGraphs(selectedDate);
-            break;
-        case "month":
-            selectedDate = new Date().last().month();
-            filterGraphs(selectedDate);
-            break;
-        case "year":
-            selectedDate = new Date().last().year();
-            filterGraphs(selectedDate);
-            break;
-    };
+    updateCharts();
 });
 
 // Helper functions for Countdown timer 
@@ -69,8 +49,8 @@ function displayCount(count) {
 
 // Loads wind speed data and temperatures from database
 function getAll() {
-    loadTempHumid();
     loadWindData();
+    loadTempHumid();
     tempChart.update();
     windChart.update();
     humidChart.update();
@@ -82,9 +62,13 @@ function loadWindData() {
         contentType: "application/json;charset=utf-8",
         dataType: "json",
         success: function (result) {
-            if (isFirstIteration)
+            console.log("LoadWind = " + isFirstIteration);
+            if (isFirstIteration) {
                 tempWind = result;
-            setWindSpeed(result);
+                console.log(result);
+            }
+            winds = result;
+            addDataToGraph("wind");
         },
         error: function (error) {
             console.log(JSON.stringify(error));
@@ -98,29 +82,19 @@ function loadTempHumid() {
         contentType: "application/json;charset=utf-8",
         dataType: "json",
         success: function (result) {
+            console.log("LoadTempHumid = " + isFirstIteration);
             if (isFirstIteration) {
                 tempArray = result;
-                //tempHumidLabels = convertDateToString(tempArray);
-            }
-                
+            }  
             isFirstIteration = false;
-            setTempHumid(result);
+            tempHumidResult = result;
+            addDataToGraph("tempHumid");
         },
         error: function (error) {
             console.log(JSON.stringify(error));
         }
     });
 };
-
-
-function setTempHumid(result) {
-    tempHumidResult = result;
-    addDataToGraph("tempHumid");
-}
-function setWindSpeed(result) {
-    winds = result;
-    addDataToGraph("wind");
-}
 
 // Helper functions for CRUD-operations on specific charts
 function addData(chart, label, data) {
@@ -132,7 +106,27 @@ function addData(chart, label, data) {
 };
 function updateCharts() {
     removeAllDataFromCharts();
-    setTimeout(getAll, 1000);
+    var selectedTimeScale = $('input[name=inlineRadioOptions]:checked', '#timeScale').val();
+    var selectedDate;
+    switch (selectedTimeScale) {
+        case "day":
+            // TODO: change back to day
+            selectedDate = new Date().last().saturday();
+            filterGraphs(selectedDate);
+            break;
+        case "week":
+            selectedDate = new Date().last().week();
+            filterGraphs(selectedDate);
+            break;
+        case "month":
+            selectedDate = new Date().last().month();
+            filterGraphs(selectedDate);
+            break;
+        case "year":
+            selectedDate = new Date().last().year();
+            filterGraphs(selectedDate);
+            break;
+    };
 }
 function removeData(chart) {
     chart.data.labels.pop();
@@ -150,15 +144,13 @@ function addDataToGraph(type) {
                 addData(tempChart, labels[i], tempArray[i].temperature);
                 addData(humidChart, labels[i], tempArray[i].humidity);
             }
-            tempChart.update();
             break;
         case "wind":
-            console.log(tempArray.length);
+            console.log(tempWind.length);
             labels = convertDateToString(tempWind); 
             for (var i = 0; i < tempWind.length; i++) {
                 addData(windChart, labels[i], tempWind[i].windspeed);
             }
-            windChart.update();
             break;
         default:
             labels = convertDateToString(tempArray);            
@@ -170,9 +162,6 @@ function addDataToGraph(type) {
             for (var i = 0; i < tempWind.length; i++) {
                 addData(windChart, labels[i], tempWind[i].windspeed);
             }
-            tempChart.update();
-            humidChart.update();
-            windChart.update();
             break; 
     };
 };
