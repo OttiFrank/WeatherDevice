@@ -1,7 +1,6 @@
 ﻿var tempChart, humidChart, windChart;
 let tempHumidResult = [];
 var winds = [];
-var timeLabels = [];
 let tempArray = [];
 let tempWind = [];
 var initial = 300000;
@@ -9,7 +8,6 @@ var count = initial;
 var counter;
 var initialMillis;
 let isFirstIteration = true;
-
 
 $(window).on("load", function () {
     loadWindData();
@@ -100,8 +98,11 @@ function loadTempHumid() {
         contentType: "application/json;charset=utf-8",
         dataType: "json",
         success: function (result) {
-            if (isFirstIteration)
+            if (isFirstIteration) {
                 tempArray = result;
+                //tempHumidLabels = convertDateToString(tempArray);
+            }
+                
             isFirstIteration = false;
             setTempHumid(result);
         },
@@ -149,15 +150,18 @@ function addDataToGraph(type) {
                 addData(tempChart, labels[i], tempArray[i].temperature);
                 addData(humidChart, labels[i], tempArray[i].humidity);
             }
+            tempChart.update();
             break;
         case "wind":
+            console.log(tempArray.length);
             labels = convertDateToString(tempWind); 
             for (var i = 0; i < tempWind.length; i++) {
                 addData(windChart, labels[i], tempWind[i].windspeed);
             }
+            windChart.update();
             break;
         default:
-            labels = convertDateToString(tempArray);
+            labels = convertDateToString(tempArray);            
             for (var i = 0; i < tempArray.length; i++) {
                 addData(tempChart, labels[i], tempArray[i].temperature);
                 addData(humidChart, labels[i], tempArray[i].humidity);
@@ -166,6 +170,9 @@ function addDataToGraph(type) {
             for (var i = 0; i < tempWind.length; i++) {
                 addData(windChart, labels[i], tempWind[i].windspeed);
             }
+            tempChart.update();
+            humidChart.update();
+            windChart.update();
             break; 
     };
 };
@@ -197,7 +204,7 @@ function removeAllDataFromCharts() {
 }
 
 function convertDateToString(array) {
-    timeLabels = [];
+    let timeLabels = [];
     for (let i = 0; i < array.length; i++) {
         var newDate = Date.parse(array[i].date).toString('ddd d MMM, HH:mm');
         timeLabels.push(newDate);
