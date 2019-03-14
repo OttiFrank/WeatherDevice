@@ -7,15 +7,17 @@ var initial = 300000;
 var count = initial;
 var counter;
 var initialMillis;
+var selected; 
 
 $(window).on("load", function () {
     getAll();
     startTimer();
+    selected = $('input[name=inlineRadioOptions]:checked', '#timeScale').val();
 })
 displayCount(initial);
 
-$('#timeScale input').on('change', function () {
-    updateCharts();
+$('#timeScale input').on('change input', function () {
+    changeFilter();
 });
 
 // Helper functions for Countdown timer 
@@ -47,6 +49,7 @@ function displayCount(count) {
 
 // Loads wind speed data and temperatures from database
 function getAll() {
+    selected = $('input[name=inlineRadioOptions]:checked', '#timeScale').val();
     loadWindData();
     setTimeout(loadTempHumid, 1000);
 };
@@ -58,8 +61,10 @@ function loadWindData() {
         dataType: "json",
         success: function (result) {
             winds = result;
-            tempWind = winds;
-            //addDataToGraph("wind");
+            if (selected == "year") {
+                tempArray = winds; 
+            }
+            changeFilter();
         },
         error: function (error) {
             console.log(JSON.stringify(error));
@@ -74,7 +79,8 @@ function loadTempHumid() {
         dataType: "json",
         success: function (result) {
             tempHumidResult = result;
-            tempArray = tempHumidResult;
+            if (selected == "year") 
+                tempArray = tempHumidResult;
             addDataToGraph();
         },
         error: function (error) {
@@ -91,7 +97,7 @@ function addData(chart, label, data) {
     });
     chart.update();
 };
-function updateCharts() {
+function changeFilter() {
     removeAllDataFromCharts();
     var selectedTimeScale = $('input[name=inlineRadioOptions]:checked', '#timeScale').val();
     var selectedDate;
