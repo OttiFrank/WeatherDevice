@@ -81,7 +81,7 @@ function loadTempHumid() {
             tempHumidResult = result;
             if (selected == "year") 
                 tempArray = tempHumidResult;
-            addDataToGraph();
+            changeFilter();
         },
         error: function (error) {
             console.log(JSON.stringify(error));
