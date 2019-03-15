@@ -3,7 +3,7 @@ let tempHumidResult = [];
 var winds = [];
 let tempArray = [];
 let tempWind = [];
-var initial = 300000;
+var initial = 150000;
 var count = initial;
 var counter;
 var initialMillis;
@@ -103,8 +103,7 @@ function changeFilter() {
     var selectedDate;
     switch (selectedTimeScale) {
         case "day":
-            // TODO: change back to day
-            selectedDate = new Date().last().saturday();
+            selectedDate = new Date().last().day();
             filterGraphs(selectedDate);
             break;
         case "week":
@@ -184,7 +183,8 @@ function removeAllDataFromCharts() {
 function convertDateToString(array) {
     let timeLabels = [];
     for (let i = 0; i < array.length; i++) {
-        var newDate = Date.parse(array[i].date).toString('ddd d MMM, HH:mm');
+        let date = Date.parse(array[i].date + "Z").addHours(1);
+        var newDate = date.toString('ddd d MMM, HH:mm');
         timeLabels.push(newDate);
     }
     return timeLabels;
