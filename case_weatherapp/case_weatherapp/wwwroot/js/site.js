@@ -3,7 +3,7 @@ let tempHumidResult = [];
 var winds = [];
 let tempArray = [];
 let tempWind = [];
-var initial = 150000;
+var initial = 300000;
 var count = initial;
 var counter;
 var initialMillis;
